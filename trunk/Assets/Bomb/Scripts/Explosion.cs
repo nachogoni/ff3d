@@ -17,6 +17,7 @@ public class Explosion : Damageable
             
         GameObject go;
         Wall wall;
+        Bomb bomb;
         int index, iZ = 0, iX = 0;
         
         for (int j = 0; j < 4; j++)
@@ -31,16 +32,21 @@ public class Explosion : Damageable
 
             //if (transform.position.y 
             go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/ExplosionParticles", typeof(GameObject)));
-            go.transform.position = transform.position + new Vector3(0f, -0.5f, 0f);
+            go.transform.position = new Vector3(transform.position.x, 0.5f, transform.position.z);
             go.transform.parent = transform;
 
             for (int i = 1; i < size + 1 && seguir; i++)
             {
                 index = ((int)transform.position.z + 14 + iZ * i) * 30 + ((int)transform.position.x + 14 + iX * i);
 
-                if ((walls[index] != null) && (wall = (Wall)walls[index].GetComponent(typeof(Wall))) != null)
+                if ((walls[index] != null) && ((wall = (Wall)walls[index].GetComponent(typeof(Wall))) != null))
                 {
                     walls[index] = (GameObject)wall.Destroy();
+                    seguir = false;
+                }
+                else if ((walls[index] != null) && ((bomb = (Bomb)walls[index].GetComponent(typeof(Bomb))) != null))
+                {
+                    walls[index] = (GameObject)bomb.Destroy();
                     seguir = false;
                 }
                 else

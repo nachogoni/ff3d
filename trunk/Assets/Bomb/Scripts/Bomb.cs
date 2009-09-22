@@ -34,7 +34,6 @@ public class Bomb : MonoBehaviour {
             GameObject go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Explosion", typeof(GameObject)));
             Explosion explosion = go.GetComponent(typeof(Explosion)) as Explosion;
             explosion.transform.position = transform.position;
-            //explosion.transform.parent = transform.parent;
             explosion.size = size;
 
             // Actualizo la cantidad de bombas del Actor
@@ -48,7 +47,13 @@ public class Bomb : MonoBehaviour {
         }
     }
 
-    void OnTriggerEnter(Collider other)
+    public GameObject Destroy()
+    {
+        time = -1f;
+        return null;
+    }
+
+/*    void OnTriggerEnter(Collider other)
     {
         // Si me choca una explosion -> Exploto
         ExplosionParticles explosionParticles = other.gameObject.GetComponent(typeof(ExplosionParticles)) as ExplosionParticles;
@@ -56,5 +61,5 @@ public class Bomb : MonoBehaviour {
         {
             time = -1f;
         }
-    }
+    }*/
 }
