@@ -5,6 +5,7 @@ public enum BombType
 {
     DefaultBomb,
     RemoteBomb,
+    ProximityBomb
 }
 
 public class Bomb : MonoBehaviour {

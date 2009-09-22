@@ -41,16 +41,19 @@ public class Maps : MonoBehaviour {
     };
 
     Object[] wallPrefabs;
+    Object[] itemPrefabs;
     Object[] enemyPrefabs;
 
 	// Use this for initialization
 	void Start () {
         float rnd;
+        GameObject go;
 
         // Genero el espacio donde van las referencias a las paredes
         walls = new GameObject[level.Length];
 
         // Levanto los prefabs
+        itemPrefabs = Resources.LoadAll("Prefabs/Items", typeof(GameObject));
         wallPrefabs = Resources.LoadAll("Prefabs/Walls", typeof(GameObject));
         enemyPrefabs = Resources.LoadAll("Prefabs/Enemies", typeof(GameObject));
         
@@ -86,15 +89,21 @@ public class Maps : MonoBehaviour {
 
             if (index < 3)
             {
-                GameObject go = (GameObject)GameObject.Instantiate(wallPrefabs[index], new Vector3(posx, 0.5f, posz), Quaternion.identity);
+                go = (GameObject)GameObject.Instantiate(wallPrefabs[index], new Vector3(posx, 0.5f, posz), Quaternion.identity);
                 go.transform.parent = gameObject.transform;
                 walls[i] = (index == 0)?null:go;
+
+                if ((index != 0) && (int)(rnd = Random.RandomRange(0f, 30f)) < itemPrefabs.Length)
+                {
+                    go = (GameObject)GameObject.Instantiate(itemPrefabs[(int)rnd], new Vector3(posx, 0f, posz), Quaternion.identity);
+                    go.transform.parent = gameObject.transform;
+                }
             }
             else
             {
-                GameObject go = (GameObject)GameObject.Instantiate(enemyPrefabs[index - 3], new Vector3(posx, 0.5f, posz), Quaternion.identity);
+                go = (GameObject)GameObject.Instantiate(enemyPrefabs[index - 3], new Vector3(posx, 0.5f, posz), Quaternion.identity);
                 go.transform.parent = gameObject.transform;
-                walls[i] = null;
+                walls[i] = null;    
 
                 //agrego al enemy al gamecontrolles
                 GameController.addEnemy();

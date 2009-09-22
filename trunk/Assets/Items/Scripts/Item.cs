@@ -6,14 +6,12 @@ public enum ItemType
     ApplierSpeed,
     ApplierGodMode,
     ApplierRemoteBomb,
+    ApplierSize
 }
 
 public class Item : MonoBehaviour
 {
-    [HideInInspector]
     public ItemType itemType;
-    [HideInInspector]
     public float value;
-    [HideInInspector]
     public float time;
 }
