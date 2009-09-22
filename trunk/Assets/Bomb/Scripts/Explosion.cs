@@ -37,7 +37,7 @@ public class Explosion : Damageable
 
                 index = ((int)transform.position.z + 14 + iZ * i) * 30 + ((int)transform.position.x + 14 + iX * i);
 
-                if (walls[index] != null && (wall = (Wall)walls[index].GetComponent(typeof(Wall))) != null)
+                if ((walls[index] != null) && (wall = (Wall)walls[index].GetComponent(typeof(Wall))) != null)
                 {
                     walls[index] = (GameObject)wall.Destroy();
                     seguir = false;

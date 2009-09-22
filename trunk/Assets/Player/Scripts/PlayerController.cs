@@ -61,9 +61,6 @@ public class PlayerController : Controller
 
         index = ((int)actualZ + 14) * 30 + ((int)actualX + 14);
 
-
-        Debug.Log(index + " - " + actualX + "," + actualZ + " * " + walls.Length);
-
         // Si hay bombas disponibles, chequeo
         if (actor.bombCount > 0 && elapsed > BOMB_MIN_ELPSED_TIME && Input.GetKey(KeyCode.Space) && walls[index] == null)
         {
@@ -74,24 +71,7 @@ public class PlayerController : Controller
             // Actualizo el mapa con la bomba actual y le paso el indice de su posicion a la bomba
             walls[index] = bomb.gameObject;
             bomb.index = index;
-
-            /*if (walls[((int)actualZ + 14) * 30 + ((int)actualX + 14 + 1)] == null)
-            {
-                actualX += 1;
-            }
-            else if (walls[((int)actualZ + 14) * 30 + ((int)actualX + 14 - 1)] == null)
-            {
-                actualX -= 1;
-            }
-            else if (walls[((int)actualZ + 14 + 1) * 30 + ((int)actualX + 14)] == null)
-            {
-                actualZ += 1;
-            }
-            else if (walls[((int)actualZ + 14 - 1) * 30 + ((int)actualX + 14)] == null)
-            {
-                actualZ -= 1;
-            }*/
-            
+          
             bomb.transform.position = new Vector3(actualX, 1.6f, actualZ);
             bomb.transform.parent = floor.transform;
 
