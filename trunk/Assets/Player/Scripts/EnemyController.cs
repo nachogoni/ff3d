@@ -13,8 +13,10 @@ public class EnemyController : Controller
     public float decision_time = 1;
     //probabilidad de cambiar de lado
     const float change_side = 0.8f;
-
+    //enum de estado de choque
     crash_enum crash;
+    //score que da al matarlo
+    public int score = 10;
 
     // Use this for initialization
     void Start()
@@ -56,7 +58,7 @@ public class EnemyController : Controller
             return;
         }
 
-        // si es hora de tomar una descicion
+        // si es hora de tomar una desicion
         if ((elapsed >= decision_time) && (crash == crash_enum.NOT_CRASHED))
         {
             elapsed -= decision_time;
@@ -114,9 +116,10 @@ public class EnemyController : Controller
 
     void die()
     {
-        PlayerController player = UnityEngine.GameObject.Find("Bomberman").GetComponent(typeof(PlayerController)) as PlayerController;
+        //cargar el score
+        GameController.enemyDie(score);
+        //mato el gameobject
         Object.Destroy(actor.gameObject);
-        player.score += 100;
     }
 
     void OnTriggerExit(Collider other)

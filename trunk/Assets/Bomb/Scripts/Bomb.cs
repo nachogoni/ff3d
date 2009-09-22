@@ -11,7 +11,6 @@ public class Bomb : MonoBehaviour {
     public GameObject[] walls;
 
     public float time = 10;
-    public float damage = 5;
 
     float lastX, lastZ;
 

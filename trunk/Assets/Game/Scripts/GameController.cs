@@ -3,25 +3,61 @@ using System.Collections;
 
 public class GameController : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-        
-	}
+    static int score = 0;
+    static int enemys = 0;
+
+    public static void addScore(int iscore)
+    {
+        score += iscore;
+    }
+
+    public static void addEnemy()
+    {
+        enemys++;
+    }
+
+    public static void enemyDie(int score)
+    {
+        //Bajo la cantidad de enemigos restantes
+        enemys--;
+        //Agrego el score
+        addScore(score);
+        //checkeo el status
+        checkStatus();
+    }
 
     void OnGUI()
     {
-        GUI.Label(new Rect(270,100,300,300), "Game Over");
-        if (GUI.Button(new Rect(150, 150, 300, 100), "RESTART"))
-            restart();
+        GUI.Label(new Rect(0f, 0f, 300f, 300f), " Score: " + score);
+        GUI.Label(new Rect(0f, 15f, 300f, 300f), " Enemys left: " + enemys);
     }
 
-    void restart()
+    public static void setEnemys(int count)
+    {
+        enemys = count;
+    }
+
+    public static void checkStatus()
+    {
+        if (enemys == 0)
+        {
+            changeLevel();
+        }
+    }
+
+    public static void restart()
     {
         Application.LoadLevel(0);
     }
 
-	// Update is called once per frame
-	void Update () {
+    public static void changeLevel()
+    {
+
+    }
+
+    public static void gameOver()
+    {
+        Application.LoadLevel(1);
+    }
 	
-	}
 }

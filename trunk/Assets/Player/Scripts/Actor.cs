@@ -17,10 +17,6 @@ public class Actor : MonoBehaviour {
     public int bombCount;
     // Cantidad de celdas que ocupa una bomba
     public int bombSize;
-    // Cantidad de dano que produce
-    public float damage;
-    // Puntaje que otorga al morir
-    public float points;
 
 	// Use this for initialization
 	void Start () {

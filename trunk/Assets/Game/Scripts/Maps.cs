@@ -95,6 +95,10 @@ public class Maps : MonoBehaviour {
                 GameObject go = (GameObject)GameObject.Instantiate(enemyPrefabs[index - 3], new Vector3(posx, 0.5f, posz), Quaternion.identity);
                 go.transform.parent = gameObject.transform;
                 walls[i] = null;
+
+                //agrego al enemy al gamecontrolles
+                GameController.addEnemy();
+
             }
 
         }

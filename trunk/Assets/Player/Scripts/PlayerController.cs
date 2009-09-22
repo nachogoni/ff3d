@@ -10,12 +10,14 @@ public class PlayerController : Controller
     // Minimo tiempo que tiene que haber pasado para poder poner otra bomba
     const float BOMB_MIN_ELPSED_TIME = 0.3f;
 
-    public int score = 0;
-
     GameObject floor;
-    float elapsed = 0;
-    float lastX, lastZ;
-    float h, v;
+
+    [HideInInspector]
+    public float elapsed = 0;
+    [HideInInspector]
+    public float lastX, lastZ;
+    [HideInInspector]
+    public float h, v;
 
     // Use this for initialization
 	void Start () {
@@ -26,8 +28,8 @@ public class PlayerController : Controller
 
     void OnGUI()
     {
-        GUI.Label(new Rect(0f, 0f, 300f, 300f), " Health: " + actor.health[0] + "/" + actor.health[1]);
-        GUI.Label(new Rect(0f, 10f, 300f, 300f), " Score: " + score);
+        //GUI.Label(new Rect(0f, 0f, 300f, 300f), " Health: " + actor.health[0] + "/" + actor.health[1]);
+        //GUI.Label(new Rect(0f, 10f, 300f, 300f), " Score: " + score);
     }
 
     void Update()
