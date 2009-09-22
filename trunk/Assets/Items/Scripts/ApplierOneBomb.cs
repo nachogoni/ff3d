@@ -8,6 +8,7 @@ public class ApplierOneBomb : Applier
     // Use this for initialization
     void Start()
     {
+        Debug.Log(actor.bombCount + " - " + (int)value + " - " + value);
         actor.bombCount += (int)value;
     }
 
@@ -25,6 +26,5 @@ public class ApplierOneBomb : Applier
 
     void End()
     {
-        actor.bombCount -= (int)value;
     }
 }
