@@ -65,7 +65,7 @@ public class PlayerController : Controller
         if (actor.bombCount > 0 && elapsed > BOMB_MIN_ELPSED_TIME && Input.GetKey(KeyCode.Space) && walls[index] == null)
         {
             // Creo una instancia del prefab
-            GameObject go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Bomb", typeof(GameObject)));
+            GameObject go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Bombs/" + ((BombType)GameController.getBombType()).ToString(), typeof(GameObject)));
             Bomb bomb = go.GetComponent(typeof(Bomb)) as Bomb;
 
             // Actualizo el mapa con la bomba actual y le paso el indice de su posicion a la bomba

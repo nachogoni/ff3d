@@ -1,6 +1,12 @@
 using UnityEngine;
 using System.Collections;
 
+public enum BombType
+{
+    DefaultBomb,
+    RemoteBomb,
+}
+
 public class Bomb : MonoBehaviour {
 
     [HideInInspector]
@@ -12,9 +18,9 @@ public class Bomb : MonoBehaviour {
     [HideInInspector]
     public int index = 0;
 
-    public float time = 10;
-
-    float lastX, lastZ;
+    public float time = 3;
+    [HideInInspector]
+    public float lastX, lastZ;
 
 	// Use this for initialization
 	void Start () {
@@ -22,35 +28,28 @@ public class Bomb : MonoBehaviour {
         lastZ = transform.position.z;
     }
 	
-	// Update is called once per frame
-    void Update()
-    {
-        transform.position = new Vector3(lastX, transform.position.y, lastZ);
-
-        time -= Time.deltaTime;
-        if (time < 0)
-        {
-            // Creo una instancia de una Explosion
-            GameObject go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Explosion", typeof(GameObject)));
-            Explosion explosion = go.GetComponent(typeof(Explosion)) as Explosion;
-            explosion.transform.position = transform.position;
-            explosion.size = size;
-
-            // Actualizo la cantidad de bombas del Actor
-            if (deliverer != null)
-                deliverer.bombCount++;
-
-            explosion.walls = walls;
-
-            Object.Destroy(gameObject);
-            walls[index] = null;
-        }
-    }
-
     public GameObject Destroy()
     {
         time = -1f;
         return null;
+    }
+
+    public void explote()
+    {
+        // Creo una instancia de una Explosion
+        GameObject go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Explosion", typeof(GameObject)));
+        Explosion explosion = go.GetComponent(typeof(Explosion)) as Explosion;
+        explosion.transform.position = transform.position;
+        explosion.size = size;
+
+        // Actualizo la cantidad de bombas del Actor
+        if (deliverer != null)
+            deliverer.bombCount++;
+
+        explosion.walls = walls;
+
+        Object.Destroy(gameObject);
+        walls[index] = null;
     }
 
 /*    void OnTriggerEnter(Collider other)

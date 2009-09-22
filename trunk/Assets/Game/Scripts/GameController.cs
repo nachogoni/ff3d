@@ -5,6 +5,7 @@ public class GameController : MonoBehaviour {
 
     static int score = 0;
     static int enemys = 0;
+    static BombType bomb = BombType.DefaultBomb;
 
     public static void addScore(int iscore)
     {
@@ -14,6 +15,16 @@ public class GameController : MonoBehaviour {
     public static void addEnemy()
     {
         enemys++;
+    }
+
+    public static BombType getBombType()
+    {
+        return bomb;
+    }
+
+    public static void setBombType(BombType b)
+    {
+        bomb = b;
     }
 
     public static void enemyDie(int score)
