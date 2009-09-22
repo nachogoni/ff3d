@@ -10,7 +10,10 @@ public enum ItemType
 
 public class Item : MonoBehaviour
 {
+    [HideInInspector]
     public ItemType itemType;
+    [HideInInspector]
     public float value;
+    [HideInInspector]
     public float time;
 }
