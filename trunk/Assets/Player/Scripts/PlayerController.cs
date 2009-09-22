@@ -64,10 +64,10 @@ public class PlayerController : Controller
 
             GameObject[] walls = ((Maps)floor.GetComponent(typeof(Maps))).walls;
 
-            if (walls[((int)actualZ + 14) * 30 + ((int)actualX + 14 + 1)] == null)
+            /*if (walls[((int)actualZ + 14) * 30 + ((int)actualX + 14 + 1)] == null)
             {
                 actualX += 1;
-            }/*
+            }
             else if (walls[((int)actualZ + 14) * 30 + ((int)actualX + 14 - 1)] == null)
             {
                 actualX -= 1;
@@ -81,7 +81,7 @@ public class PlayerController : Controller
                 actualZ -= 1;
             }*/
             
-            bomb.transform.position = new Vector3(actualX, 0.6f, actualZ);
+            bomb.transform.position = new Vector3(actualX, 1.6f, actualZ);
             bomb.transform.parent = floor.transform;
 
             // Actualizo el contador

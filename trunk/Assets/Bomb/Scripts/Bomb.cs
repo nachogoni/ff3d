@@ -13,15 +13,18 @@ public class Bomb : MonoBehaviour {
     public float time = 10;
     public float damage = 5;
 
+    float lastX, lastZ;
+
 	// Use this for initialization
 	void Start () {
-
+        lastX = transform.position.x;
+        lastZ = transform.position.z;
     }
 	
 	// Update is called once per frame
     void Update()
     {
-        transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        transform.position = new Vector3(lastX, transform.position.y, lastZ);
 
         time -= Time.deltaTime;
         if (time < 0)
