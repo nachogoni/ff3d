@@ -9,6 +9,8 @@ public class Bomb : MonoBehaviour {
     public int size = 1;
     [HideInInspector]
     public GameObject[] walls;
+    [HideInInspector]
+    public int index = 0;
 
     public float time = 10;
 
@@ -42,6 +44,7 @@ public class Bomb : MonoBehaviour {
             explosion.walls = walls;
 
             Object.Destroy(gameObject);
+            walls[index] = null;
         }
     }
 

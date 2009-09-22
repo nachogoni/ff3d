@@ -35,6 +35,8 @@ public class PlayerController : Controller
     void Update()
     {
         float x = transform.position.x % 1 + 0.02f, z = transform.position.z % 1 + 0.02f;
+        GameObject[] walls = ((Maps)floor.GetComponent(typeof(Maps))).walls;
+        int index;
 
         // Para que solo se mueva en una direccion...
         float va, ha, actualX, actualZ;
@@ -57,14 +59,21 @@ public class PlayerController : Controller
         // Tiempo pasado desde que se coloco la ultima bomba
         elapsed += Time.deltaTime;
 
+        index = ((int)actualZ + 14) * 30 + ((int)actualX + 14);
+
+
+        Debug.Log(index + " - " + actualX + "," + actualZ + " * " + walls.Length);
+
         // Si hay bombas disponibles, chequeo
-        if (actor.bombCount > 0 && elapsed > BOMB_MIN_ELPSED_TIME && Input.GetKey(KeyCode.Space))
+        if (actor.bombCount > 0 && elapsed > BOMB_MIN_ELPSED_TIME && Input.GetKey(KeyCode.Space) && walls[index] == null)
         {
             // Creo una instancia del prefab
             GameObject go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Bomb", typeof(GameObject)));
             Bomb bomb = go.GetComponent(typeof(Bomb)) as Bomb;
 
-            GameObject[] walls = ((Maps)floor.GetComponent(typeof(Maps))).walls;
+            // Actualizo el mapa con la bomba actual y le paso el indice de su posicion a la bomba
+            walls[index] = bomb.gameObject;
+            bomb.index = index;
 
             /*if (walls[((int)actualZ + 14) * 30 + ((int)actualX + 14 + 1)] == null)
             {
@@ -92,7 +101,7 @@ public class PlayerController : Controller
             // Seteo quien coloco la bomba para restaurarle el contador
             bomb.deliverer = this.actor;
             // Seteo la referencia al mapa
-            bomb.walls = ((Maps)floor.GetComponent(typeof(Maps))).walls;
+            bomb.walls = walls;
 
             // Seteo la cantidad de celdas de la explosion de la bomba
             bomb.size = actor.bombSize;

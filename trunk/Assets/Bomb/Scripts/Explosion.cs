@@ -4,7 +4,7 @@ using System.Collections;
 public class Explosion : Damageable
 {
     public int size = 1;
-    public float time = .001f;
+    public float time = 1f;
 
     [HideInInspector]
     public GameObject[] walls;
