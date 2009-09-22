@@ -29,18 +29,25 @@ public class Explosion : Damageable
                 case 3: iZ = +1; iX =  0; break;
             }
 
+            //if (transform.position.y 
+            go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/ExplosionParticles", typeof(GameObject)));
+            go.transform.position = transform.position + new Vector3(0f, -0.5f, 0f);
+            go.transform.parent = transform;
+
             for (int i = 1; i < size + 1 && seguir; i++)
             {
-                go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/ExplosionParticles", typeof(GameObject)));
-                go.transform.position = transform.position + new Vector3((float)iX * i, 0f, (float)iZ * i);
-                go.transform.parent = transform;
-
                 index = ((int)transform.position.z + 14 + iZ * i) * 30 + ((int)transform.position.x + 14 + iX * i);
 
                 if ((walls[index] != null) && (wall = (Wall)walls[index].GetComponent(typeof(Wall))) != null)
                 {
                     walls[index] = (GameObject)wall.Destroy();
                     seguir = false;
+                }
+                else
+                {
+                    go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/ExplosionParticles", typeof(GameObject)));
+                    go.transform.position = transform.position + new Vector3((float)iX * i, 0f, (float)iZ * i);
+                    go.transform.parent = transform;
                 }
             }
             seguir = true;
