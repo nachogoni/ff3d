@@ -9,6 +9,8 @@ public class ProximityBomb : Bomb {
     void Update () {
         /*((Bomb)GetComponentInChildren(typeof(Bomb))).*/transform.position = new Vector3(lastX, transform.position.y, lastZ);
 
+        Debug.Log(lastX + " - " + lastZ);
+
         time -= Time.deltaTime;
         if ((time < 0) && !active)
         {
