@@ -9,6 +9,7 @@ public enum ItemType
     ApplierProximityBomb,
     ApplierSize,
     ApplierAddBomb,
+    ApplierOneUp,
 }
 
 public class Item : MonoBehaviour
