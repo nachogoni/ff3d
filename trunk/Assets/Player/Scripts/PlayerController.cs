@@ -9,7 +9,7 @@ public class PlayerController : Controller
     const float BOMB_INIT_POS = 1;
 
     //Tiempo minimo de keypress
-    public const float KEYPRESS_MIN_ELPSED_TIME = 0.05f;
+    public const float KEYPRESS_MIN_ELPSED_TIME = 0.1f;
     //Tiempo minimo de bomba
     public const float BOMB_MIN_ELPSED_TIME = 0.3f;
 
@@ -18,6 +18,7 @@ public class PlayerController : Controller
     void OnGUI()
     {
         GUI.Label(new Rect(0f, 30f, 300f, 300f), " Weapon: " + actor.bomb.ToString() + " (" + actor.bombCount[(int)actor.bomb] + ")" );
+        GUI.Label(new Rect(0f, 45f, 300f, 300f), " Lifes: " + actor.lifes );
     }
 
     void Update()
@@ -61,10 +62,10 @@ public class PlayerController : Controller
             }
             // Si hay bombas disponibles, chequeo
             //if (actor.bombCount > 0 && elapsed > BOMB_MIN_ELPSED_TIME && Input.GetKey(KeyCode.Space) && walls[index] == null)
-            else if (actor.bombCount[(int)actor.bomb] > 0 && elapsed > BOMB_MIN_ELPSED_TIME && Input.GetKey(KeyCode.Space))
+            else if (actor.bombCount[(int)actor.bomb] > 0 && elapsed > BOMB_MIN_ELPSED_TIME && Input.GetKey(KeyCode.Space) && walls[index] == null)
             {
                 //planto la bomba
-                plantBomb();
+                plantBomb(index);
                 //la descuento
                 actor.bombCount[(int)actor.bomb] -= 1;
                 elapsed = 0;

@@ -20,4 +20,5 @@ public class Actor : MonoBehaviour {
     // tipo de bomba que tiene cargado el actor
     public BombType bomb = BombType.RemoteBomb;
 	// Use this for initialization
+    public int lifes = 3;
 }

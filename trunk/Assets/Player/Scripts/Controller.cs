@@ -38,9 +38,14 @@ public class Controller : MonoBehaviour {
                 actor.health[0] -= d.damage;
                 actor.health[0] = Mathf.Max(0, actor.health[0]);
 
-                if (actor.health[0] == 0)
+                if ((actor.health[0] == 0) && (actor.lifes == 1))
                 {
                     GameController.gameOver();
+                }
+                else
+                {
+                    actor.health[0] = 100;
+                    actor.lifes--;
                 }
             }
         }
@@ -48,7 +53,17 @@ public class Controller : MonoBehaviour {
         EnemyController e = other.gameObject.GetComponent(typeof(EnemyController)) as EnemyController;
         //Si tiene godMode no aplica
         if ((e != null) && (actor.health[1] != 0))
-            GameController.gameOver();
+        {
+            if (actor.lifes == 1)
+            {
+                GameController.gameOver();
+            }
+            else
+            {
+                actor.lifes--;
+            }
+        }
+            
 
         Item item = other.gameObject.GetComponent(typeof(Item)) as Item;
         if (item != null)
@@ -65,10 +80,9 @@ public class Controller : MonoBehaviour {
         }
     }
 
-    public void plantBomb()
+    public void plantBomb(int index)
     {
         GameObject[] walls = ((Maps)floor.GetComponent(typeof(Maps))).walls;
-        int index;
         float x = transform.position.x % 1 + 0.02f, z = transform.position.z % 1 + 0.02f;
         float actualX, actualZ;
 
@@ -80,7 +94,7 @@ public class Controller : MonoBehaviour {
         actualZ = transform.position.z - transform.position.z % 1 + z;
 
         // Creo una instancia del prefab
-        index = ((int)actualZ + 14) * 30 + ((int)actualX + 14);
+        //index = ((int)actualZ + 14) * 30 + ((int)actualX + 14);
 
         GameObject go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Bombs/" + (actor.bomb).ToString(), typeof(GameObject)));
         Bomb bomb = go.GetComponent(typeof(Bomb)) as Bomb;
