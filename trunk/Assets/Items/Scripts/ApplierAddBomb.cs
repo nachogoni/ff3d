@@ -1,13 +1,13 @@
 using UnityEngine;
 using System.Collections;
 
-public class ApplierOneBomb : Applier
+public class ApplierAddBomb : Applier
 {
 
     // Use this for initialization
     void Start()
     {
-        actor.bombCount += (int)value;
+        actor.bombCount[(int)actor.bomb] += (int)value;
     }
 
     // Update is called once per frame

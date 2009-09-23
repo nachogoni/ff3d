@@ -5,10 +5,6 @@ enum crash_enum { NOT_CRASHED = 0, BEING_CRASHED, CRASHED };
 
 public class EnemyController : Controller
 {
-    GameObject floor;
-    float elapsed = 0;
-    float h, v;
-
     //tiempo en tomar una descision
     public float decision_time = 1;
     //probabilidad de cambiar de lado
@@ -17,14 +13,6 @@ public class EnemyController : Controller
     crash_enum crash;
     //score que da al matarlo
     public int score = 10;
-
-    // Use this for initialization
-    void Start()
-    {
-        floor = UnityEngine.GameObject.Find("Floor");
-        h = 0;
-        v = 1;
-    }
 
     void change_movement(bool crashed)
     {

@@ -8,23 +8,11 @@ public class ApplierRemoteBomb : Applier
     // Use this for initialization
     void Start()
     {
-        GameController.setBombType(BombType.RemoteBomb);
+        actor.bombCount[(int)BombType.RemoteBomb] += (int)value;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        time += Time.deltaTime;
-        if (time > maxTime)
-        {
-            time = 0;
-            End();
-            Object.Destroy(this);
-        }
-    }
-
-    void End()
-    {
-        GameController.setBombType(BombType.DefaultBomb);
+        Object.Destroy(this);
     }
 }

@@ -17,16 +17,6 @@ public class GameController : MonoBehaviour {
         enemys++;
     }
 
-    public static BombType getBombType()
-    {
-        return bomb;
-    }
-
-    public static void setBombType(BombType b)
-    {
-        bomb = b;
-    }
-
     public static void enemyDie(int score)
     {
         //Bajo la cantidad de enemigos restantes
@@ -63,7 +53,7 @@ public class GameController : MonoBehaviour {
 
     public static void changeLevel()
     {
-
+        Application.LoadLevel(0);
     }
 
     public static void gameOver()

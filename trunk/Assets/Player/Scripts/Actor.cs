@@ -14,17 +14,10 @@ public class Actor : MonoBehaviour {
     // Velocidad del Actor
     public float speed;
     // Cantidad de Bombas que tiene para colocar
-    public int bombCount;
+    public int[] bombCount = new int[]{10,10,10};
     // Cantidad de celdas que ocupa una bomba
     public int bombSize;
-
+    // tipo de bomba que tiene cargado el actor
+    public BombType bomb = BombType.RemoteBomb;
 	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 }

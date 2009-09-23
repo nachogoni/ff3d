@@ -9,7 +9,7 @@ public class ProximityBomb : Bomb {
     void Update () {
         /*((Bomb)GetComponentInChildren(typeof(Bomb))).*/transform.position = new Vector3(lastX, transform.position.y, lastZ);
 
-        Debug.Log(lastX + " - " + lastZ);
+        //Debug.Log(lastX + " - " + lastZ);
 
         time -= Time.deltaTime;
         if ((time < 0) && !active)
@@ -27,6 +27,6 @@ public class ProximityBomb : Bomb {
         void OnTriggerEnter(Collider other)
     {
         if (active)
-            explote();
+            ((Bomb)GetComponentInChildren(typeof(Bomb))).explote();
     }
 }

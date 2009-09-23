@@ -7,36 +7,24 @@ public class PlayerController : Controller
     const float BOMB_INIT_VEL = 5;
     // Maxima distancia inicial al Player hacia arriba
     const float BOMB_INIT_POS = 1;
-    // Minimo tiempo que tiene que haber pasado para poder poner otra bomba
-    const float BOMB_MIN_ELPSED_TIME = 0.3f;
 
-    GameObject floor;
+    //Tiempo minimo de keypress
+    public const float KEYPRESS_MIN_ELPSED_TIME = 0.15f;
+    //Tiempo minimo de bomba
+    public const float BOMB_MIN_ELPSED_TIME = 0.3f;
 
-    [HideInInspector]
-    public float elapsed = 0;
-    [HideInInspector]
-    public float lastX, lastZ;
-    [HideInInspector]
-    public float h, v;
-
-    // Use this for initialization
-	void Start () {
-        floor = UnityEngine.GameObject.Find("Floor");
-        h = 0;
-        v = 0;
-    }
+    float keyPressElapsed = 0;
 
     void OnGUI()
     {
-        //GUI.Label(new Rect(0f, 0f, 300f, 300f), " Health: " + actor.health[0] + "/" + actor.health[1]);
-        //GUI.Label(new Rect(0f, 10f, 300f, 300f), " Score: " + score);
+        GUI.Label(new Rect(0f, 30f, 300f, 300f), " Weapon: " + actor.bomb.ToString() + " (" + actor.bombCount[(int)actor.bomb] + ")" );
     }
 
     void Update()
     {
-        float x = transform.position.x % 1 + 0.02f, z = transform.position.z % 1 + 0.02f;
         GameObject[] walls = ((Maps)floor.GetComponent(typeof(Maps))).walls;
         int index;
+        float x = transform.position.x % 1 + 0.02f, z = transform.position.z % 1 + 0.02f;
 
         // Para que solo se mueva en una direccion...
         float va, ha, actualX, actualZ;
@@ -49,46 +37,47 @@ public class PlayerController : Controller
         else if (ha > va)
             v = 0;
 
-        // Calculo la posicion actual
-        if (Mathf.Abs(x) < 0.5f) x = 0f; else x = 1f * Mathf.Sign(x);
-        if (Mathf.Abs(z) < 0.5f) z = 0f; else z = 1f * Mathf.Sign(z);
-
         actualX = transform.position.x - transform.position.x % 1 + x;
         actualZ = transform.position.z - transform.position.z % 1 + z;
+
+        index = ((int)actualZ + 14) * 30 + ((int)actualX + 14);
 
         // Tiempo pasado desde que se coloco la ultima bomba
         elapsed += Time.deltaTime;
 
-        index = ((int)actualZ + 14) * 30 + ((int)actualX + 14);
+        // tiempo que paso desde que presiono una tecla
+        keyPressElapsed += Time.deltaTime;
 
-        // Si hay bombas disponibles, chequeo
-        if (actor.bombCount > 0 && elapsed > BOMB_MIN_ELPSED_TIME && Input.GetKey(KeyCode.Space) && walls[index] == null)
+        
+
+        if (keyPressElapsed > KEYPRESS_MIN_ELPSED_TIME)
         {
-            // Creo una instancia del prefab
-            GameObject go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Bombs/" + ((BombType)GameController.getBombType()).ToString(), typeof(GameObject)));
-            Bomb bomb = go.GetComponent(typeof(Bomb)) as Bomb;
-
-            // Actualizo el mapa con la bomba actual y le paso el indice de su posicion a la bomba
-            walls[index] = bomb.gameObject;
-            bomb.index = index;
-          
-            bomb.transform.position = new Vector3(actualX, 1.6f, actualZ);
-            bomb.transform.parent = floor.transform;
-
-            // Actualizo el contador
-            actor.bombCount--;
-            
-            // Seteo quien coloco la bomba para restaurarle el contador
-            bomb.deliverer = this.actor;
-            // Seteo la referencia al mapa
-            bomb.walls = walls;
-
-            // Seteo la cantidad de celdas de la explosion de la bomba
-            bomb.size = actor.bombSize;
-
-            elapsed = 0;
+            if (Input.GetKey(KeyCode.E))
+            {
+                switchWeapon(1);
+            }else if (Input.GetKey(KeyCode.Q))
+            {
+                switchWeapon(-1);
+            }
+            // Si hay bombas disponibles, chequeo
+            //if (actor.bombCount > 0 && elapsed > BOMB_MIN_ELPSED_TIME && Input.GetKey(KeyCode.Space) && walls[index] == null)
+            else if (actor.bombCount[(int)actor.bomb] > 0 && elapsed > BOMB_MIN_ELPSED_TIME && Input.GetKey(KeyCode.Space))
+            {
+                //planto la bomba
+                plantBomb();
+                //la descuento
+                actor.bombCount[(int)actor.bomb] -= 1;
+                elapsed = 0;
+            }
+            keyPressElapsed -= KEYPRESS_MIN_ELPSED_TIME;
         }
 
+    }
+
+    void switchWeapon(int i)
+    {
+        //muevo el arma
+        actor.bomb = (BombType)(((int)actor.bomb + i) % 3);
     }
 
 	// Update is called once per frame

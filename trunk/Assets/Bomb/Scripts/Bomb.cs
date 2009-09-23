@@ -3,7 +3,7 @@ using System.Collections;
 
 public enum BombType
 {
-    DefaultBomb,
+    DefaultBomb = 0,
     RemoteBomb,
     ProximityBomb
 }
@@ -43,14 +43,11 @@ public class Bomb : MonoBehaviour {
         explosion.transform.position = transform.position;
         explosion.size = size;
 
-        // Actualizo la cantidad de bombas del Actor
-        if (deliverer != null)
-            deliverer.bombCount++;
-
         explosion.walls = walls;
 
+
         Object.Destroy(gameObject);
-        walls[index] = null;
+        //walls[index] = null;
     }
 
 /*    void OnTriggerEnter(Collider other)
