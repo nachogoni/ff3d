@@ -8,6 +8,7 @@ public class ApplierAddBomb : Applier
     void Start()
     {
         actor.bombCount[(int)actor.bomb] += (int)value;
+        showText("+ " + (int)value + " " + actor.bomb + "'s");
     }
 
     // Update is called once per frame

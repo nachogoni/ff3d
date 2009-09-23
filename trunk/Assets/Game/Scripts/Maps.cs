@@ -60,13 +60,16 @@ public class Maps : MonoBehaviour {
         // Genera Niveles dinamicos
         for (int i = 0; i < level.Length; i++)
         {
+            //Si es un espacio en blanco
             if (level[i] == 0)
             {
                 rnd = Random.RandomRange(0f, 1f);
+                //Probabilidad de que haya una pared
                 if (rnd < 0.5f)
                 {
                     level[i] = 1;
                 }
+                //Probabilidad de que haya un enemigo
                 else if (rnd > 0.97f)
                 {
                     level[i] = 3;
@@ -93,8 +96,11 @@ public class Maps : MonoBehaviour {
                 go.transform.parent = gameObject.transform;
                 walls[i] = (index == 0)?null:go;
 
-                if ((index != 0) && (int)(rnd = Random.RandomRange(0f, 30f)) < itemPrefabs.Length)
+                //Si es una pared y la probabilidad de que haya un item
+                if ((index == 1) && ((rnd = Random.RandomRange(0f, 1f)) > 0.7f))
                 {
+                    //Elijo rnd el item
+                    rnd = Random.RandomRange(0f, 1f) * itemPrefabs.Length;
                     go = (GameObject)GameObject.Instantiate(itemPrefabs[(int)rnd], new Vector3(posx, 0f, posz), Quaternion.identity);
                     go.transform.parent = gameObject.transform;
                 }

@@ -40,8 +40,10 @@ public class GameController : MonoBehaviour {
 
     public static void checkStatus()
     {
+        Debug.Log(enemys + " enemys");
         if (enemys == 0)
         {
+            Debug.Log("Cambio de nivel " + enemys);
             changeLevel();
         }
     }

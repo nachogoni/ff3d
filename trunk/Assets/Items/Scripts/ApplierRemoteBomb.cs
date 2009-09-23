@@ -9,6 +9,7 @@ public class ApplierRemoteBomb : Applier
     void Start()
     {
         actor.bombCount[(int)BombType.RemoteBomb] += (int)value;
+        showText("+ " + (int)value + " " + BombType.RemoteBomb + "'s");
     }
 
     void Update()

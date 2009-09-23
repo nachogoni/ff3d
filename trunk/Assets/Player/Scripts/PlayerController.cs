@@ -77,7 +77,10 @@ public class PlayerController : Controller
     void switchWeapon(int i)
     {
         //muevo el arma
-        actor.bomb = (BombType)(((int)actor.bomb + i) % 3);
+        int changeTo = ((int)actor.bomb + i) % 3;
+        if (changeTo < 0)
+            changeTo = 2;
+        actor.bomb = (BombType)(changeTo);
     }
 
 	// Update is called once per frame

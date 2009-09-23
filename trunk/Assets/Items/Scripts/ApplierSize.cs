@@ -8,6 +8,7 @@ public class ApplierSize : Applier
     void Start()
     {
         actor.bombSize += (int)value;
+        showText("More Size!");
     }
 
     // Update is called once per frame

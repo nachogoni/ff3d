@@ -11,6 +11,7 @@ public class ApplierGodMode : Applier
     {
         auxDamage = actor.health[1];
         actor.health[1] = 0;
+        showText("GodMode!");
     }
 
     // Update is called once per frame

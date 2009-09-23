@@ -9,6 +9,7 @@ public class ApplierSpeed : Applier
     void Start()
     {
         actor.speed += value;
+        showText("Run Forest, Run!");
     }
 
     // Update is called once per frame

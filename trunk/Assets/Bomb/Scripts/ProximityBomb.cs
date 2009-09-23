@@ -7,9 +7,7 @@ public class ProximityBomb : Bomb {
 
     // Update is called once per frame
     void Update () {
-        /*((Bomb)GetComponentInChildren(typeof(Bomb))).*/transform.position = new Vector3(lastX, transform.position.y, lastZ);
-
-        //Debug.Log(lastX + " - " + lastZ);
+        transform.position = new Vector3(lastX, transform.position.y, lastZ);
 
         time -= Time.deltaTime;
         if ((time < 0) && !active)
@@ -24,9 +22,11 @@ public class ProximityBomb : Bomb {
         }
     }
 
-        void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         if (active)
+        {
             ((Bomb)GetComponentInChildren(typeof(Bomb))).explote();
+        }
     }
 }

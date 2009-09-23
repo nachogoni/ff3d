@@ -73,8 +73,11 @@ public class EnemyController : Controller
         Wall wall = other.gameObject.GetComponent(typeof(Wall)) as Wall;
         Controller c = other.gameObject.GetComponent(typeof(Controller)) as Controller;
         Bomb b = other.gameObject.GetComponent(typeof(Bomb)) as Bomb;
+        ProximityBomb pb = other.gameObject.GetComponent(typeof(ProximityBomb)) as ProximityBomb;
 
-        if ((wall != null) || (c != null) || (b != null))
+        //Si es una pared, otro munieco o una bomba choco
+        //Si es una proximity que siga pa' delante
+        if (((wall != null) || (c != null) || (b != null)) && (pb == null))
         {
             crash = crash_enum.CRASHED;
             Vector3 reposition = Vector3.zero;

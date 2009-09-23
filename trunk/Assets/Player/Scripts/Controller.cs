@@ -53,6 +53,7 @@ public class Controller : MonoBehaviour {
         Item item = other.gameObject.GetComponent(typeof(Item)) as Item;
         if (item != null)
         {
+            //Cargo el applier
             Applier app = gameObject.AddComponent(item.itemType.ToString()) as Applier;
             //actor
             app.actor = actor;
