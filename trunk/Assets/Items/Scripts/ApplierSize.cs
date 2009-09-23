@@ -25,6 +25,5 @@ public class ApplierSize : Applier
 
     void End()
     {
-        actor.bombSize -= (int)value;
     }
 }

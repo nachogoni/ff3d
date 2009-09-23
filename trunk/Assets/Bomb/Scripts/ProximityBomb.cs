@@ -12,7 +12,6 @@ public class ProximityBomb : Bomb {
         time -= Time.deltaTime;
         if ((time < 0) && !active)
         {
-            Debug.Log("Bomba activada");
             active=true;
         }
 

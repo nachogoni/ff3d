@@ -4,6 +4,7 @@ using System.Collections;
 public class SpriteManager : MonoBehaviour {
 
     public GameObject to;
+    public Actor actor;
     public int spritesTotalCount = 1;
     public int[] spritesSequenceUp = new int[] { 0 };
     public int[] spritesSequenceDown = new int[] { 0 };
@@ -11,11 +12,14 @@ public class SpriteManager : MonoBehaviour {
     public int[] spritesSequenceRight = new int[] { 0 };
     public int[] spritesSequenceStay = new int[] { 0 };
 
+    Controller controller;
+
     int i = 0, sequenceCount;
 
     // Use this for initialization
     void Start()
     {
+        controller = actor.GetComponent(typeof(Controller)) as Controller;
     }
 
     // Update is called once per frame
@@ -27,8 +31,8 @@ public class SpriteManager : MonoBehaviour {
 
         float posX = gameObject.transform.position.x;
         float posZ = gameObject.transform.position.z;
-        float velX = gameObject.rigidbody.velocity.x;
-        float velZ = gameObject.rigidbody.velocity.z;
+        float velX = controller.h;// gameObject.rigidbody.velocity.x;
+        float velZ = controller.v;// gameObject.rigidbody.velocity.z;
 
         if (velZ > 0.01f)
         {

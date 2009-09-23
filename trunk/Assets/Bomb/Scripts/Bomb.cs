@@ -47,7 +47,7 @@ public class Bomb : MonoBehaviour {
 
 
         Object.Destroy(gameObject);
-        //walls[index] = null;
+        walls[index] = null;
     }
 
 /*    void OnTriggerEnter(Collider other)

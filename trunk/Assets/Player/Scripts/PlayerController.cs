@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class PlayerController : Controller
@@ -9,7 +9,7 @@ public class PlayerController : Controller
     const float BOMB_INIT_POS = 1;
 
     //Tiempo minimo de keypress
-    public const float KEYPRESS_MIN_ELPSED_TIME = 0.15f;
+    public const float KEYPRESS_MIN_ELPSED_TIME = 0.05f;
     //Tiempo minimo de bomba
     public const float BOMB_MIN_ELPSED_TIME = 0.3f;
 
