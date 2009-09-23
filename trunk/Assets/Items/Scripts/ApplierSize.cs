@@ -12,6 +12,8 @@ public class ApplierSize : Applier
     }
 
     // Update is called once per frame
+    //Descomentar para que el size vuelva a su estado normal dsp de un tiempo
+    /*
     void Update()
     {
         time += Time.deltaTime;
@@ -26,4 +28,5 @@ public class ApplierSize : Applier
     void End()
     {
     }
+    */
 }

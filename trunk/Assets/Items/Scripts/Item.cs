@@ -6,8 +6,9 @@ public enum ItemType
     ApplierSpeed,
     ApplierGodMode,
     ApplierRemoteBomb,
+    ApplierProximityBomb,
     ApplierSize,
-    ApplierAddBomb
+    ApplierAddBomb,
 }
 
 public class Item : MonoBehaviour
