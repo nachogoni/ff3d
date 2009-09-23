@@ -12,12 +12,8 @@ public class ProximityBomb : Bomb {
         time -= Time.deltaTime;
         if ((time < 0) && !active)
         {
+            showText("Activated!");
             active=true;
-        }
-
-        if ((Input.GetKey(KeyCode.K)) && active)
-        {
-            ((Bomb)GetComponentInChildren(typeof(Bomb))).explote();
         }
     }
 
@@ -25,7 +21,8 @@ public class ProximityBomb : Bomb {
     {
         if (active)
         {
-            ((Bomb)GetComponentInChildren(typeof(Bomb))).explote();
+            ((Bomb)transform.parent.GetComponent(typeof(Bomb))).explote();
+            
         }
     }
 }

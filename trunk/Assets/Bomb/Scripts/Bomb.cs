@@ -35,6 +35,20 @@ public class Bomb : MonoBehaviour {
         return null;
     }
 
+    void Update()
+    {
+        transform.position = new Vector3(lastX, transform.position.y, lastZ);
+    }
+
+    public void showText(string value)
+    {
+        //Creo el texto
+        GameObject go = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Items/ItemText", typeof(GameObject)));
+        go.transform.position = transform.position + Vector3.forward;
+        ItemText itext = go.GetComponent(typeof(ItemText)) as ItemText;
+        itext.value = value;
+    }
+
     public void explote()
     {
         // Creo una instancia de una Explosion
