@@ -8,6 +8,22 @@ using System.Collections.Generic;
 // Unity Framework
 using UnityEngine;
 
+// Estados del tanque
+public enum TankMode
+{
+    SearchingBox = 0,
+    BeingAttacked,
+    Attacking,
+    Nothing
+}
+
+public enum TankStates
+{
+    Stay = 0,
+    Doing,
+}
+
+
 
 public class TankFF3D : TankBehaviour
 {
@@ -25,6 +41,10 @@ public class TankFF3D : TankBehaviour
     List<PosRowCol> flags = new List<PosRowCol>();
     List<PosRowCol> enemies = new List<PosRowCol>();
     Hashtable enemiesHash = new Hashtable();
+
+    // Estado del tanque
+    TankStates ActualState = TankStates.Stay;
+    public TankMode ActualMode = TankMode.Nothing;
 
     // Camino a seguir
     public List<PosRowCol> path = new List<PosRowCol>();
@@ -84,11 +104,9 @@ public class TankFF3D : TankBehaviour
         UpdateTankPosition();
 
 
-
-
-
-
-
+        // Pongo el modo de busqueda de banderas
+        ActualMode = TankMode.Attacking;
+        
     }
 
 
@@ -96,9 +114,33 @@ public class TankFF3D : TankBehaviour
 
     public override void Think()
     {
+        // Segun el estado que haga tal o cual cosa
+        if (ActualState == TankStates.Stay)
+        {
+            switch (ActualMode)
+            {
+                case TankMode.Attacking:
+                    Debug.Log("Atacando");
+                    break;
+                case TankMode.BeingAttacked:
+                    Debug.Log("Siendo Atacando");
+                    break;
+                case TankMode.SearchingBox:
+                    Debug.Log("Buscando item");
+                    break;
+                case TankMode.Nothing:
+                    Debug.Log("Nada");
+                    break;
+                default:
+                    break;
+            }
+            ActualState = TankStates.Doing;
+        }
 
+        /*
         if (visionInfo.Length > 0)
             getEnemies();
+         */
 
     }
 
