@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace FF3D
 {
 
-    public class AStar : SearchMethod
+    public class FF3d_AStar : FF3d_SearchMethod
     {
 
         private void removeRepeatedNodes(ArrayList openNodes, ArrayList closedNodes)
@@ -14,9 +14,9 @@ namespace FF3D
             ArrayList toRemove = new ArrayList();
 
             //Los nodos recien aniadidos a abiertos, chekeo que no esten en cerrados
-            foreach (Node node in openNodes)
+            foreach (FF3d_Node node in openNodes)
             {
-                foreach (Node nodeClosed in closedNodes)
+                foreach (FF3d_Node nodeClosed in closedNodes)
                 {
                     if (nodeClosed.equals(node))
                     {
@@ -25,7 +25,7 @@ namespace FF3D
                 }
             }
 
-            foreach (Node node in toRemove)
+            foreach (FF3d_Node node in toRemove)
                 openNodes.Remove(node);
         }
 
@@ -33,14 +33,14 @@ namespace FF3D
         {
             float min = float.MaxValue;
             int minNode = 0;
-            Node currNode, backup;
+            FF3d_Node currNode, backup;
 
             removeRepeatedNodes(openNodes, closedNodes);
 
             /* Ubico como proximo a expander (primero en lista de abiertos) al que tiene menor f */
             for (int i = 0; i < openNodes.Count; i++)
             {
-                currNode = (Node)(openNodes[i]);
+                currNode = (FF3d_Node)(openNodes[i]);
 
                 if ((currNode.getH() != float.MaxValue) && (currNode.getH() + currNode.getGSum() < min))
                 {
@@ -51,8 +51,8 @@ namespace FF3D
 
             if (openNodes.Count > 0)
             {
-                backup = (Node)openNodes[0];
-                currNode = (Node)openNodes[minNode];
+                backup = (FF3d_Node)openNodes[0];
+                currNode = (FF3d_Node)openNodes[minNode];
                 openNodes.Insert(0, currNode);
                 openNodes.Insert(minNode, backup);
             }

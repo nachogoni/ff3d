@@ -2,20 +2,20 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-public class Node {
+public class FF3d_Node {
 	
 	private static int id;
 	
-	private State state;
+	private FF3d_State state;
 	private float gSum;
 	private float h;
-	private Rule rule;
-	private Node parent;
+	private FF3d_Rule rule;
+	private FF3d_Node parent;
 	private int nodeId;
 	private int level;
 	
 	// Genera el nodo raiz
-	public Node(State state, float h, Rule rule) {
+	public FF3d_Node(FF3d_State state, float h, FF3d_Rule rule) {
 		this.state = state;
 		this.gSum = 0.0f;
 		this.h = h;
@@ -33,12 +33,12 @@ public class Node {
 		this.h = h;
 	}
 
-    public Rule getRule()
+    public FF3d_Rule getRule()
     {
         return this.rule;
     }
 
-	public void setRule(Rule rule) {
+	public void setRule(FF3d_Rule rule) {
 		this.rule = rule;
 	}
 
@@ -46,7 +46,7 @@ public class Node {
 		return nodeId;
 	}
 
-	public Node(State state, float h, float gSum, Node parent, Rule rule) {
+	public FF3d_Node(FF3d_State state, float h, float gSum, FF3d_Node parent, FF3d_Rule rule) {
 		this.state=state;
 		this.gSum = gSum;
 		this.h = h;
@@ -61,15 +61,15 @@ public class Node {
 	}
 
 	public bool equals(System.Object other) {		
-		return ((Node)(other)).getState().equals(this.state);
+		return ((FF3d_Node)(other)).getState().equals(this.state);
 	}
 	
-	public State getState()
+	public FF3d_State getState()
     {
 		return state;
 	}
 
-	public void setState(State state) {
+	public void setState(FF3d_State state) {
 		this.state = state;
 	}
 
@@ -81,15 +81,15 @@ public class Node {
 		gSum = sum;
 	}
 
-	public Node getParent() {
+	public FF3d_Node getParent() {
 		return parent;
 	}
 
-	public void setParent(Node parent) {
+	public void setParent(FF3d_Node parent) {
 		this.parent = parent;
 	}
 	
-	public Node getRoot() {
+	public FF3d_Node getRoot() {
 		if (this.parent == null) {
 			return this;
 		}

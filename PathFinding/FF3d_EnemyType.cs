@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-public class EnemyType
+public class FF3d_EnemyType
 {
 
     public Vector3 pos;
@@ -9,7 +9,7 @@ public class EnemyType
     float lastUpdate;
     
 
-    public EnemyType(Vector3 position)
+    public FF3d_EnemyType(Vector3 position)
     {
         pos = position;
 

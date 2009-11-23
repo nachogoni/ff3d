@@ -3,14 +3,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class FF3d_TankState : State 
+public class FF3d_TankState : FF3d_State 
 {
-    CellTypes[,] map;
+    FF3d_CellTypes[,] map;
     int rowValue = 0;
     int colValue = 0;
-    List<PosRowCol> flagsPos;
+    List<FF3d_PosRowCol> flagsPos;
 
-    public FF3d_TankState(CellTypes[,] cells, int row, int col, List<PosRowCol> flags)
+    public FF3d_TankState(FF3d_CellTypes[,] cells, int row, int col, List<FF3d_PosRowCol> flags)
     {
 
         if (cells == null || row > cells.GetLength(0) ||
@@ -28,7 +28,7 @@ public class FF3d_TankState : State
 
 	}
 		
-	public bool isValidMove(MoveTypes move) {
+	public bool isValidMove(FF3d_MoveTypes move) {
 
         int rowInc = 0, colInc = 0;
         bool ret = true;
@@ -37,20 +37,20 @@ public class FF3d_TankState : State
             return false;
 
         // Segun move, seteo las direcciones
-        colInc = TankRule.getColIncrement(move);
-        rowInc = TankRule.getRowIncrement(move);
+        colInc = FF3d_TankRule.getColIncrement(move);
+        rowInc = FF3d_TankRule.getRowIncrement(move);
 
         if (ret && (rowValue + rowInc) >= 0 && (rowValue + rowInc) < map.GetLength(0) &&
                 (colValue + colInc) >= 0 && (colValue + colInc) < map.GetLength(1))
         {
             // Si no hay una pared en esa direccion es valido
-            ret = !(map[rowValue + rowInc, colValue + colInc] == CellTypes.WALL);
+            ret = !(map[rowValue + rowInc, colValue + colInc] == FF3d_CellTypes.WALL);
 
             if (colInc != 0 && rowInc != 0)
             {
                 // Diagonal -> Chequeo que no haya paredes asi no se traba
-                ret = ret && !(map[rowValue + rowInc, colValue] == CellTypes.WALL)
-                    && !(map[rowValue, colValue + colInc] == CellTypes.WALL);
+                ret = ret && !(map[rowValue + rowInc, colValue] == FF3d_CellTypes.WALL)
+                    && !(map[rowValue, colValue + colInc] == FF3d_CellTypes.WALL);
             }
 
         }
@@ -62,18 +62,18 @@ public class FF3d_TankState : State
         return ret;
 	}
 	
-	public bool move(MoveTypes move) 
+	public bool move(FF3d_MoveTypes move) 
     {
         if (!isValidMove(move))
             return false;
 
-        map[rowValue, colValue] = CellTypes.FIELD;
+        map[rowValue, colValue] = FF3d_CellTypes.FIELD;
 
         // Segun move modifico mi posicion
-        colValue += TankRule.getColIncrement(move);
-        rowValue += TankRule.getRowIncrement(move);
+        colValue += FF3d_TankRule.getColIncrement(move);
+        rowValue += FF3d_TankRule.getRowIncrement(move);
 
-        map[rowValue, colValue] = CellTypes.PLAYER;
+        map[rowValue, colValue] = FF3d_CellTypes.PLAYER;
 
 		return true;
 	}
@@ -106,7 +106,7 @@ public class FF3d_TankState : State
 		
 	public bool isGoal()
     {
-        foreach (PosRowCol flag in flagsPos)
+        foreach (FF3d_PosRowCol flag in flagsPos)
         {
             if ((flag.colValue == colValue) && (flag.rowValue == rowValue))
             {
@@ -117,14 +117,14 @@ public class FF3d_TankState : State
         return false;
 	}
 
-    public List<PosRowCol> getFlags()
+    public List<FF3d_PosRowCol> getFlags()
     {
         return flagsPos;
     }
 
-    public PosRowCol getRowCol()
+    public FF3d_PosRowCol getRowCol()
     {
-        return new PosRowCol(rowValue, colValue);
+        return new FF3d_PosRowCol(rowValue, colValue);
     }
 
 }

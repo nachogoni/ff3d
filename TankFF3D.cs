@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Estados del tanque
-public enum TankMode
+public enum FF3d_TankMode
 {
     SearchingBox = 0,
     BeingAttacked,
@@ -17,13 +17,13 @@ public enum TankMode
     Nothing
 }
 
-public enum TankTorretStates
+public enum FF3d_TankTorretStates
 {
     Stay = 0,
     Doing,
 }
 
-public enum TorretMode
+public enum FF3d_TorretMode
 {
     Nothing = 0,
     Rotating,
@@ -36,25 +36,25 @@ public class TankFF3D : TankBehaviour
 {
     // Representacion del mapa
     int cols, rows;
-    CellTypes[,] cells = null;
+    FF3d_CellTypes[,] cells = null;
 
     // Posicion del tanque
     int tankRow = 0, tankCol = 0;
     int LastTankRow = 0, LastTankCol = 0;
 
     // Flags & Enemies
-    List<PosRowCol> flags = new List<PosRowCol>();
-    List<PosRowCol> enemies = new List<PosRowCol>();
+    List<FF3d_PosRowCol> flags = new List<FF3d_PosRowCol>();
+    List<FF3d_PosRowCol> enemies = new List<FF3d_PosRowCol>();
     Hashtable enemiesHash = new Hashtable();
 
     // Estado del tanque
-    TankTorretStates ActualState = TankTorretStates.Stay;
-    TankMode PreviousMode = TankMode.Nothing;
-    public TankMode ActualMode = TankMode.Nothing;
+    FF3d_TankTorretStates ActualState = FF3d_TankTorretStates.Stay;
+    FF3d_TankMode PreviousMode = FF3d_TankMode.Nothing;
+    public FF3d_TankMode ActualMode = FF3d_TankMode.Nothing;
 
     // Estado de la torreta
-    TankTorretStates actualTorretState = TankTorretStates.Stay;
-    TorretMode actualTorretMode = TorretMode.Nothing;
+    FF3d_TankTorretStates actualTorretState = FF3d_TankTorretStates.Stay;
+    FF3d_TorretMode actualTorretMode = FF3d_TorretMode.Nothing;
     float actualTorretAngle = 0f;
     float deltaTorretAngle = 10f;
     Vector3 torretShootAt = Vector3.zero;
@@ -64,8 +64,8 @@ public class TankFF3D : TankBehaviour
     float deltaTime = 0f;
 
     // Camino a seguir
-    public List<PosRowCol> path = new List<PosRowCol>();
-    Rule lastRule = null;
+    public List<FF3d_PosRowCol> path = new List<FF3d_PosRowCol>();
+    FF3d_Rule lastRule = null;
     Vector3 goingTo;
     float deltaMoveTime = 3f;
     float deltaMTime = 0f;
@@ -82,13 +82,13 @@ public class TankFF3D : TankBehaviour
 
         tp.VisionDistance = 1;
         tp.VisionAngle = 1;
-        tp.FirePower = 1;
+        tp.FirePower = 2;
         tp.FireRate = 4;
         tp.MovSpeed = 4;
-        tp.Armor = 4;
+        tp.Armor = 2;
         tp.RadDistance = 1;
         tp.RadRefresh = 1;
-        tp.EnergyTotal = 1;
+        tp.EnergyTotal = 2;
         tp.ShieldDuration = 1;
         tp.ShieldRechargeSpd = 1;
 
@@ -101,12 +101,12 @@ public class TankFF3D : TankBehaviour
         // Obtiene el mapa
         cols = map.Cols;
         rows = map.Rows;
-        cells = new CellTypes[rows, cols];
+        cells = new FF3d_CellTypes[rows, cols];
         for (int r = 0; r < rows; r++)
         {
             for (int c = 0; c < cols; c++)
             {
-                cells[r, c] = (map.IsObstacle(r, c) == true ? CellTypes.WALL : CellTypes.FIELD);
+                cells[r, c] = (map.IsObstacle(r, c) == true ? FF3d_CellTypes.WALL : FF3d_CellTypes.FIELD);
             }
         }
 
@@ -117,15 +117,15 @@ public class TankFF3D : TankBehaviour
         UpdateTankPosition();
 
         // Pongo el modo de nada
-        ActualState = TankTorretStates.Stay;
-        ActualMode = TankMode.Nothing;
-        actualTorretMode = TorretMode.Rotating;
+        ActualState = FF3d_TankTorretStates.Stay;
+        ActualMode = FF3d_TankMode.Nothing;
+        actualTorretMode = FF3d_TorretMode.Rotating;
     }
 
     /*
      * Cambia el modo del tanque
      */
-    private void changeMode(TankMode s)
+    private void changeMode(FF3d_TankMode s)
     {
         // Guardo el modo anterior por si quiero seguir con ese dsp
         if (ActualMode != s)
@@ -146,7 +146,7 @@ public class TankFF3D : TankBehaviour
         map.GetRowColAtWorldPos(devicePos, out row, out col);
 
         flags.Clear();
-        flags.Add(new PosRowCol(row, col));
+        flags.Add(new FF3d_PosRowCol(row, col));
 
         UpdateTankPosition();
         CalculatePath(tankRow, tankCol, flags, enemies);
@@ -169,7 +169,7 @@ public class TankFF3D : TankBehaviour
      */
     void AttackingMode()
     {
-        actualTorretMode = TorretMode.Shooting;
+        actualTorretMode = FF3d_TorretMode.Shooting;
         
         //Si tengo algo en la vision le disparo
 
@@ -206,9 +206,9 @@ public class TankFF3D : TankBehaviour
 
         //Agrego al enemigo al mapa
         map.GetRowColAtWorldPos(dir, out row, out col);
-        enemies.Add(new PosRowCol(row, col));
+        enemies.Add(new FF3d_PosRowCol(row, col));
 
-        changeMode(TankMode.BeingAttacked);
+        changeMode(FF3d_TankMode.BeingAttacked);
     }
 
     public override void OnShootReceived(Vector3 dir)
@@ -217,7 +217,7 @@ public class TankFF3D : TankBehaviour
 
         //Agrego al enemigo al mapa
         map.GetRowColAtWorldPos(dir, out row, out col);
-        enemies.Add(new PosRowCol(row, col));
+        enemies.Add(new FF3d_PosRowCol(row, col));
 
         if (shieldInfo.timeForBeAvailable == 0)
             ActivateShield();
@@ -228,7 +228,7 @@ public class TankFF3D : TankBehaviour
     public override void Think()
     {
         // Segun el estado que haga tal o cual cosa
-        if (ActualState == TankTorretStates.Stay)
+        if (ActualState == FF3d_TankTorretStates.Stay)
         {
             /*
             if (torretEnemyAtSight)
@@ -237,25 +237,25 @@ public class TankFF3D : TankBehaviour
 
             switch (ActualMode)
             {
-                case TankMode.Attacking:
+                case FF3d_TankMode.Attacking:
                     AttackingMode();
                     break;
-                case TankMode.BeingAttacked:
+                case FF3d_TankMode.BeingAttacked:
                     BeeingAttackedMode();
                     break;
-                case TankMode.SearchingBox:
+                case FF3d_TankMode.SearchingBox:
                     Debug.Log("Buscando item en " + devicePos);
                     // Calculo el recorrido
                     SearchingBoxMode();
                     break;
-                case TankMode.Nothing:
+                case FF3d_TankMode.Nothing:
                     NothingMode();
                     break;
                 default:
                     Debug.Log("Modo invalido de tank");
                     break;
             }
-            ActualState = TankTorretStates.Doing;
+            ActualState = FF3d_TankTorretStates.Doing;
         }
 
         /*if (actualTorretState == TankTorretStates.Stay)
@@ -288,7 +288,7 @@ public class TankFF3D : TankBehaviour
             if ((devicePos = calculateDevicePosition()) != Vector3.zero)
             {
                 // Si la encuentro paso a buscar caja
-                changeMode(TankMode.SearchingBox);
+                changeMode(FF3d_TankMode.SearchingBox);
                 doNotRemovePath = true;
 
             }
@@ -324,7 +324,7 @@ public class TankFF3D : TankBehaviour
 
     void torretFinish()
     {
-        actualTorretState = TankTorretStates.Stay;
+        actualTorretState = FF3d_TankTorretStates.Stay;
     }
 
     void torretShootingMode()
@@ -342,7 +342,7 @@ public class TankFF3D : TankBehaviour
 
     Vector3 calculateDevicePosition()
     {
-        DistancePoint p;
+        FF3d_DistancePoint p;
         Array points;
 
         if (radarRefresh == radarInfo.refreshNumber)
@@ -351,7 +351,7 @@ public class TankFF3D : TankBehaviour
         //Actualizo el refresh number
         radarRefresh = radarInfo.refreshNumber;
 
-        p = new DistancePoint(transform.position, radarInfo.distanceToObject);
+        p = new FF3d_DistancePoint(transform.position, radarInfo.distanceToObject);
 
         // Si no tiene el punto que lo ponga
         if (!devicePoints.Contains(p))
@@ -362,11 +362,11 @@ public class TankFF3D : TankBehaviour
         //Si tengo menos de 3 puntos no puedo triangular
         if (devicePoints.Count > 2)
         {
-            DistancePoint[] aux = new DistancePoint[3];
+            FF3d_DistancePoint[] aux = new FF3d_DistancePoint[3];
             int i = 0;
             float x, z;
 
-            foreach(DistancePoint d in devicePoints)
+            foreach(FF3d_DistancePoint d in devicePoints)
             {
                 aux[i++] = d;
             }
@@ -403,20 +403,20 @@ public class TankFF3D : TankBehaviour
         map.GetRowColAtWorldPos(transform.position, out tankRow, out tankCol);
     }
 
-    void UpdateFlagsIntoCells(List<PosRowCol> flags)
+    void UpdateFlagsIntoCells(List<FF3d_PosRowCol> flags)
     {
-        foreach (PosRowCol flag in flags)
+        foreach (FF3d_PosRowCol flag in flags)
         {
-            cells[flag.rowValue, flag.colValue] = CellTypes.FLAG;
+            cells[flag.rowValue, flag.colValue] = FF3d_CellTypes.FLAG;
         }
 
     }
 
-    void UpdateEnemiesIntoCells(List<PosRowCol> enemies)
+    void UpdateEnemiesIntoCells(List<FF3d_PosRowCol> enemies)
     {
-        foreach (PosRowCol enemy in enemies)
+        foreach (FF3d_PosRowCol enemy in enemies)
         {
-            cells[enemy.rowValue, enemy.colValue] = CellTypes.ENEMY;
+            cells[enemy.rowValue, enemy.colValue] = FF3d_CellTypes.ENEMY;
         }
 
     }
@@ -434,14 +434,14 @@ public class TankFF3D : TankBehaviour
 
             for (int i = 0; i < visionInfo.Length; i++)
             {
-                EnemyType enemy;
+                FF3d_EnemyType enemy;
 
                 if (!(enemiesHash.ContainsKey(visionInfo[i].name)))
                 {
-                    enemiesHash.Add(visionInfo[i].name, new EnemyType(visionInfo[i].position));
+                    enemiesHash.Add(visionInfo[i].name, new FF3d_EnemyType(visionInfo[i].position));
                 }
 
-                enemy = (EnemyType)(enemiesHash[visionInfo[i].name]);
+                enemy = (FF3d_EnemyType)(enemiesHash[visionInfo[i].name]);
 
                 torretShootAt = enemy.newPos(visionInfo[0].position, transform.position);
             }
@@ -453,32 +453,32 @@ public class TankFF3D : TankBehaviour
         
     // PathFinding
 
-    void CalculatePath(int row, int col, List<PosRowCol> flags, List<PosRowCol> enemies)
+    void CalculatePath(int row, int col, List<FF3d_PosRowCol> flags, List<FF3d_PosRowCol> enemies)
     {
         // Probando el PathFinder!
-        Problem problem = new PathFinder(cells, row, col, flags, enemies, new MinDistance());
-        Engine engine = new Engine(problem);
+        FF3d_Problem problem = new FF3d_PathFinder(cells, row, col, flags, enemies, new FF3d_MinDistance());
+        FF3d_Engine engine = new FF3d_Engine(problem);
         ArrayList solution;
 
         if (lastRule != null)
             engine.setLastRule(lastRule);
 
-        if (engine.run(new FF3D.AStar()))
+        if (engine.run(new FF3D.FF3d_AStar()))
         {
             solution = engine.getRules();
 
             if (solution.Count > 0)
             {
-                lastRule = (Rule)solution[0];
-                foreach (Rule rule in solution)
+                lastRule = (FF3d_Rule)solution[0];
+                foreach (FF3d_Rule rule in solution)
                 {
-                    if (((TankRule)rule).moveValue != ((TankRule)lastRule).moveValue)
-                        path.Add(new PosRowCol(row, col));
+                    if (((FF3d_TankRule)rule).moveValue != ((FF3d_TankRule)lastRule).moveValue)
+                        path.Add(new FF3d_PosRowCol(row, col));
                     lastRule = rule;
-                    row += TankRule.getRowIncrement(((TankRule)rule).moveValue);
-                    col += TankRule.getColIncrement(((TankRule)rule).moveValue);
+                    row += FF3d_TankRule.getRowIncrement(((FF3d_TankRule)rule).moveValue);
+                    col += FF3d_TankRule.getColIncrement(((FF3d_TankRule)rule).moveValue);
                 }
-                path.Add(new PosRowCol(row, col));
+                path.Add(new FF3d_PosRowCol(row, col));
             }
         }
         return;
@@ -498,7 +498,7 @@ public class TankFF3D : TankBehaviour
 
     void tankFinish()
     {
-        ActualState = TankTorretStates.Stay;
+        ActualState = FF3d_TankTorretStates.Stay;
     }
 
     void Driver()
@@ -511,7 +511,7 @@ public class TankFF3D : TankBehaviour
             UpdateTankPosition();
 
             if (path == null)
-                path = new List<PosRowCol>();
+                path = new List<FF3d_PosRowCol>();
 
             path.Clear();
             flags.Clear();
@@ -523,10 +523,10 @@ public class TankFF3D : TankBehaviour
                     row = UnityEngine.Random.Range(1, rows - 1);
                     col = UnityEngine.Random.Range(1, cols - 1);
 
-                    if (cells[row, col] != CellTypes.WALL)
+                    if (cells[row, col] != FF3d_CellTypes.WALL)
                     {
-                        flags.Add(new PosRowCol(row, col));
-                        cells[row, col] = CellTypes.FLAG;
+                        flags.Add(new FF3d_PosRowCol(row, col));
+                        cells[row, col] = FF3d_CellTypes.FLAG;
                     }
                 }
 
