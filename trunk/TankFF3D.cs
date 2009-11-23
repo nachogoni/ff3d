@@ -178,8 +178,16 @@ public class TankFF3D : TankBehaviour
     void AttackingMode()
     {
         actualTorretMode = TorretMode.Shooting;
+        
         //Si tengo algo en la vision le disparo
-        Fire(torretShootAt, torretFinish);
+
+        if (torretEnemyAtSight)
+        {
+            Fire(torretShootAt, AttackingModeFinish);
+        }
+        else
+            changeMode(PreviousMode);
+
         //Si no tengo busco en las pos de los enemigos y disparo
     }
 
