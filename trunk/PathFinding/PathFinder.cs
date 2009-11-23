@@ -42,14 +42,14 @@ public class PathFinder : Problem
 
     public State getInitState()
     {
-        State state = new TankState(actualMap, rowValue, colValue, goalsPos);
+        State state = new FF3d_TankState(actualMap, rowValue, colValue, goalsPos);
 
         return state;
     }
 
     public bool isGoal(State state)
     {
-        return ((TankState)state).isGoal();
+        return ((FF3d_TankState)state).isGoal();
     }
 
     public ArrayList getRules()

@@ -24,19 +24,19 @@ public class TankRule : Rule{
 	}
 	
 	public bool isApplicable(State state){
-        return ((TankState)state).isValidMove(this.moveValue);
+        return ((FF3d_TankState)state).isValidMove(this.moveValue);
 	}
 	
 	public State apply(State state)
     {
-		TankState newState;
+		FF3d_TankState newState;
 
-        if (!((TankState)state).isValidMove(this.moveValue))
+        if (!((FF3d_TankState)state).isValidMove(this.moveValue))
         {
 			return null;
 		}
 
-		newState = ((TankState)state).duplicate();
+		newState = ((FF3d_TankState)state).duplicate();
         newState.move(this.moveValue);
 		
 		return (State)newState;

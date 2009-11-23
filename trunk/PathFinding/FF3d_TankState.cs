@@ -3,14 +3,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class TankState : State 
+public class FF3d_TankState : State 
 {
     CellTypes[,] map;
     int rowValue = 0;
     int colValue = 0;
     List<PosRowCol> flagsPos;
 
-    public TankState(CellTypes[,] cells, int row, int col, List<PosRowCol> flags)
+    public FF3d_TankState(CellTypes[,] cells, int row, int col, List<PosRowCol> flags)
     {
 
         if (cells == null || row > cells.GetLength(0) ||
@@ -80,7 +80,7 @@ public class TankState : State
 	
 	public bool equals(System.Object arg0)
     {
-        TankState state = (TankState)arg0;
+        FF3d_TankState state = (FF3d_TankState)arg0;
 
         return (state.colValue == colValue && state.rowValue == rowValue);// && map.Equals(state.map));
 	}
@@ -99,9 +99,9 @@ public class TankState : State
 		return  "Row: " + rowValue + " Col: " + colValue;
 	}
 
-    public TankState duplicate()
+    public FF3d_TankState duplicate()
     {
-        return new TankState(map, rowValue, colValue, flagsPos);
+        return new FF3d_TankState(map, rowValue, colValue, flagsPos);
 	}
 		
 	public bool isGoal()

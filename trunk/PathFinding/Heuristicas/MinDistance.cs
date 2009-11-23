@@ -7,7 +7,7 @@ public class MinDistance : Heuristics
 
 	public float getHeuristic(State state)
     {
-        TankState tankState = ((TankState)state);
+        FF3d_TankState tankState = ((FF3d_TankState)state);
 
         List<PosRowCol> flagsPos = tankState.getFlags();
         
