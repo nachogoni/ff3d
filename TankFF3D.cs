@@ -132,13 +132,14 @@ public class TankFF3D : TankBehaviour
      */
     private void changeMode(TankMode s)
     {
-        Debug.Log("Cambio el modo a " + s);
         // Guardo el modo anterior por si quiero seguir con ese dsp
         if (ActualMode != s)
         {
+            Debug.Log("Cambio el modo a " + s);
             PreviousMode = ActualMode;
             ActualMode = s;
         }
+        //actualTorretState = TankTorretStates.Stay;
     }
 
     /*
@@ -150,9 +151,13 @@ public class TankFF3D : TankBehaviour
 
         // Calculo el recorrido
         map.GetRowColAtWorldPos(devicePos, out row, out col);
+
+        flags.Clear();
         flags.Add(new PosRowCol(row, col));
-        UpdateFlagsIntoCells(flags);
+
+        UpdateTankPosition();
         CalculatePath(tankRow, tankCol, flags, enemies);
+
         // Go for it
         StartMoving();
     }
@@ -174,11 +179,17 @@ public class TankFF3D : TankBehaviour
     {
         actualTorretMode = TorretMode.Shooting;
         //Si tengo algo en la vision le disparo
-        if (visionInfo.Length > 0)
-        {
-            Fire(visionInfo[0].position, new FireFinish(tankFinish));
-        }
+        Fire(torretShootAt, torretFinish);
         //Si no tengo busco en las pos de los enemigos y disparo
+    }
+
+    void AttackingModeFinish()
+    {
+        if (visionInfo.Length == 0)
+        {
+            torretEnemyAtSight = false;
+        }
+        torretFinish();
     }
 
     /*
@@ -213,18 +224,14 @@ public class TankFF3D : TankBehaviour
 
     public override void Think()
     {
-        if (torretEnemyAtSight)
-        {
-            changeMode(TankMode.Attacking);
-        }
-        else
-        {
-            changeMode(PreviousMode);
-        }
-
         // Segun el estado que haga tal o cual cosa
         if (ActualState == TankTorretStates.Stay)
         {
+            /*
+            if (torretEnemyAtSight)
+                changeMode(TankMode.Attacking);
+             */
+
             switch (ActualMode)
             {
                 case TankMode.Attacking:
@@ -256,6 +263,7 @@ public class TankFF3D : TankBehaviour
                     torretRotateMode();
                     break;
                 case TorretMode.Shooting:
+                    //actualTorretMode = TorretMode.Rotating;
                     break;
                 case TorretMode.Nothing:
                     actualTorretMode = TorretMode.Rotating;
@@ -276,7 +284,7 @@ public class TankFF3D : TankBehaviour
             if ((devicePos = calculateDevicePosition()) != Vector3.zero)
             {
                 // Si la encuentro paso a buscar caja
-                //changeMode(TankMode.SearchingBox);
+                changeMode(TankMode.SearchingBox);
             }
 
         }
@@ -289,7 +297,7 @@ public class TankFF3D : TankBehaviour
 
     void torretShootingMode()
     {
-        Fire(torretShootAt, torretFinish);
+        //Fire(torretShootAt, torretFinish);
     }
 
     void torretRotateMode()
