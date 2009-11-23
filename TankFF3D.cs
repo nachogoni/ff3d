@@ -57,6 +57,7 @@ public class TankFF3D : TankBehaviour
     float actualTorretAngle = 0f;
     float deltaTorretAngle = 10f;
     Vector3 torretShootAt = Vector3.zero;
+    bool torretEnemyAtSight = false;
 
     // Camino a seguir
     public List<PosRowCol> path = new List<PosRowCol>();
@@ -122,7 +123,7 @@ public class TankFF3D : TankBehaviour
         UpdateTankPosition();
 
         // Pongo el modo de nada
-        ActualMode = TankMode.Attacking;
+        ActualMode = TankMode.Nothing;
         actualTorretMode = TorretMode.Rotating;
     }
 
@@ -131,11 +132,13 @@ public class TankFF3D : TankBehaviour
      */
     private void changeMode(TankMode s)
     {
+        Debug.Log("Cambio el modo a " + s);
         // Guardo el modo anterior por si quiero seguir con ese dsp
-        PreviousMode = ActualMode;
-        ActualMode = s;
-        // Pongo para que actualize el modo del tanque
-        ActualState = TankTorretStates.Stay;
+        if (ActualMode != s)
+        {
+            PreviousMode = ActualMode;
+            ActualMode = s;
+        }
     }
 
     /*
@@ -147,7 +150,7 @@ public class TankFF3D : TankBehaviour
 
         // Calculo el recorrido
         map.GetRowColAtWorldPos(devicePos, out row, out col);
-        flags.Add(new PosRowCol(deviceX, deviceZ));
+        flags.Add(new PosRowCol(row, col));
         UpdateFlagsIntoCells(flags);
         CalculatePath(tankRow, tankCol, flags, enemies);
         // Go for it
@@ -210,6 +213,15 @@ public class TankFF3D : TankBehaviour
 
     public override void Think()
     {
+        if (torretEnemyAtSight)
+        {
+            changeMode(TankMode.Attacking);
+        }
+        else
+        {
+            changeMode(PreviousMode);
+        }
+
         // Segun el estado que haga tal o cual cosa
         if (ActualState == TankTorretStates.Stay)
         {
@@ -375,9 +387,14 @@ public class TankFF3D : TankBehaviour
 
     void getEnemies()
     {
+        torretEnemyAtSight = false;
+
         //Debug.Log("VEO:" + visionInfo.Length);
         if (visionInfo.Length > 0 )//&& ((a++ % 20) == 0))
         {
+            torretEnemyAtSight = true;
+            torretShootAt = visionInfo[0].position;
+
             for (int i = 0; i < visionInfo.Length; i++)
             {
                 EnemyType enemy;
