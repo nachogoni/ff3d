@@ -58,14 +58,17 @@ public class TankFF3D : TankBehaviour
     float deltaTorretAngle = 10f;
     Vector3 torretShootAt = Vector3.zero;
     bool torretEnemyAtSight = false;
+    int rotateTime = 0;
 
     // Camino a seguir
     public List<PosRowCol> path = new List<PosRowCol>();
     Rule lastRule = null;
+    Vector3 goingTo;
 
     // Posicion del device
     Vector3 devicePos = Vector3.zero;
     ArrayList devicePoints = new ArrayList();
+    bool doNotRemovePath = false;
     int radarRefresh = 0;
     
     public override TankProperties GetProperties()
@@ -90,8 +93,6 @@ public class TankFF3D : TankBehaviour
 
     public override void StartThink()
     {
-        int x, y;
-
         // Obtiene el mapa
         cols = map.Cols;
         rows = map.Rows;
@@ -104,25 +105,14 @@ public class TankFF3D : TankBehaviour
             }
         }
 
-        // TODO: Obtiene los Enemigos -> Vacio a menos que tenga alguno a la vista
-
-        // Obtiene los Flags
-        int flagCount = FlagManager.GetFlagCount();
-        for (int flag = 0; flag < flagCount; flag++)
-        {
-            FlagManager.GetFlagRowCol(flag, out x, out y);
-            //flags.Add(new PosRowCol(x, y));
-        }
-
         // Actualizo el mapa
-        // no hay flags
-        //UpdateFlagsIntoCells(flags);
         UpdateEnemiesIntoCells(enemies);
 
         // Actualizo la posicion del tanque
         UpdateTankPosition();
 
         // Pongo el modo de nada
+        ActualState = TankTorretStates.Stay;
         ActualMode = TankMode.Nothing;
         actualTorretMode = TorretMode.Rotating;
     }
@@ -148,7 +138,7 @@ public class TankFF3D : TankBehaviour
     void SearchingBoxMode()
     {
         int row, col;
-
+        Debug.Log("Entre");
         // Calculo el recorrido
         map.GetRowColAtWorldPos(devicePos, out row, out col);
 
@@ -157,7 +147,6 @@ public class TankFF3D : TankBehaviour
 
         UpdateTankPosition();
         CalculatePath(tankRow, tankCol, flags, enemies);
-
         // Go for it
         StartMoving();
     }
@@ -293,6 +282,8 @@ public class TankFF3D : TankBehaviour
             {
                 // Si la encuentro paso a buscar caja
                 changeMode(TankMode.SearchingBox);
+                doNotRemovePath = true;
+
             }
 
         }
@@ -398,15 +389,11 @@ public class TankFF3D : TankBehaviour
 
     // EnemyFinding
 
-    int a = 0;
-    bool vari = true;
-
     void getEnemies()
     {
         torretEnemyAtSight = false;
 
-        //Debug.Log("VEO:" + visionInfo.Length);
-        if (visionInfo.Length > 0 )//&& ((a++ % 20) == 0))
+        if (visionInfo.Length > 0 )
         {
             torretEnemyAtSight = true;
             torretShootAt = visionInfo[0].position;
@@ -465,7 +452,8 @@ public class TankFF3D : TankBehaviour
     {
         if (path != null && path.Count > 0)
         {
-            MoveTo(path[0].rowValue, path[0].colValue, new MoveFinish(Driver));
+            MoveTo(path[0].rowValue, path[0].colValue, new MoveFinish(tankFinish));
+            goingTo = map.GetWorldPosAtRowCol(path[0].rowValue, path[0].colValue);
             path.Remove(path[0]);
         }
 
@@ -481,49 +469,59 @@ public class TankFF3D : TankBehaviour
     {
         int row = 0, col = 0;
 
-        if (path == null)
-            return;
-
-        if (path.Count > 0)
+        if ((path == null || path.Count == 0) && !doNotRemovePath)
         {
-            MoveTo(path[0].rowValue, path[0].colValue, new MoveFinish(tankFinish));
-            path.Remove(path[0]);
-        }
-        else
-        {
-            PosRowCol remove = null;
-            // No hay mas movimientos... hay que ir a la proxima bandera
+            
             UpdateTankPosition();
 
-            // Obtengo la posicion actual y comparon con las banderas
-            foreach (PosRowCol pos in flags)
+            if (path == null)
+                path = new List<PosRowCol>();
+
+            path.Clear();
+            flags.Clear();
+
+            while (path.Count == 0)
             {
-                if (pos.colValue == tankCol && pos.rowValue == tankRow)
-                    remove = pos;
-            }
-
-            cells[tankRow, tankCol] = CellTypes.FIELD;
-
-            if (remove != null)
-                flags.Remove(remove);
-
-            while (flags.Count == 0)
-            {
-                row = UnityEngine.Random.Range(1, rows - 1);
-                col = UnityEngine.Random.Range(1, cols - 1);
-
-                if (cells[row, col] != CellTypes.WALL)
+                while (flags.Count == 0)
                 {
-                    flags.Add(new PosRowCol(row, col));
-                    cells[row, col] = CellTypes.FLAG;
+                    row = UnityEngine.Random.Range(1, rows - 1);
+                    col = UnityEngine.Random.Range(1, cols - 1);
+
+                    if (cells[row, col] != CellTypes.WALL)
+                    {
+                        flags.Add(new PosRowCol(row, col));
+                        cells[row, col] = CellTypes.FLAG;
+                    }
                 }
+
+                CalculatePath(tankRow, tankCol, flags, enemies);
             }
 
-            CalculatePath(tankRow, tankCol, flags, enemies);
             StartMoving();
 
         }
+        else
+        {
+            StartMoving();
+        }
+
         return;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+
+        if (goingTo != null)
+        {
+            Gizmos.DrawLine(transform.position, goingTo);
+            if (path.Count > 0)
+            {
+                Gizmos.DrawLine(goingTo, map.GetWorldPosAtRowCol(path[0].rowValue, path[0].colValue));
+                for (int i = 1; i < (path.Count - 1); i++)
+                    Gizmos.DrawLine(map.GetWorldPosAtRowCol(path[i - 1].rowValue, path[i - 1].colValue), map.GetWorldPosAtRowCol(path[i].rowValue, path[i].colValue));
+            }
+        }
     }
 
 }

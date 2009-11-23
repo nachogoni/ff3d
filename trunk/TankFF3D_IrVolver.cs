@@ -29,6 +29,7 @@ public class TankFF3D_IrVolver : TankBehaviour
     // Camino a seguir
     public List<PosRowCol> path = new List<PosRowCol>();
     Rule lastRule = null;
+    Vector3 goingTo;
     
     public override TankProperties GetProperties()
     {
@@ -38,7 +39,7 @@ public class TankFF3D_IrVolver : TankBehaviour
         tp.VisionAngle = 1;
         tp.FirePower = 1;
         tp.FireRate = 1;
-        tp.MovSpeed = 1;
+        tp.MovSpeed = 4;
         tp.Armor = 1;
         tp.RadDistance = 1;
         tp.RadRefresh = 1;
@@ -83,9 +84,11 @@ public class TankFF3D_IrVolver : TankBehaviour
         // Actualizo la posicion del tanque
         UpdateTankPosition();
 
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 50; i++)
         {
-            path.Add(new PosRowCol(20, 6));
+            path.Add(new PosRowCol(19, 6));
+            path.Add(new PosRowCol(19, 20));
+            path.Add(new PosRowCol(6, 20));
             path.Add(new PosRowCol(6, 6));
         }
 
@@ -94,12 +97,9 @@ public class TankFF3D_IrVolver : TankBehaviour
     }
 
 
-    int torretAngleChange = 0;
-
     public override void Think()
     {
-        Debug.Log(Time.realtimeSinceStartup +  " estoy en " + transform.position.x);
-
+//        Debug.Log(Time.realtimeSinceStartup +  " estoy en " + transform.position.x);
     }
 
     public void OnFireFinish()
@@ -179,7 +179,7 @@ public class TankFF3D_IrVolver : TankBehaviour
 
                // Debug.Log(enemy.pos.x + " " + enemy.pos.z);
 
-                Vector3 newpos = enemy.newPos(visionInfo[i].position);
+                Vector3 newpos = enemy.newPos(visionInfo[i].position, transform.position);
 
 //                Fire(visionInfo[i].position, null);
 
@@ -237,6 +237,7 @@ public class TankFF3D_IrVolver : TankBehaviour
         if (path != null && path.Count > 0)
         {
             MoveTo(path[0].rowValue, path[0].colValue, new MoveFinish(Driver));
+            goingTo = map.GetWorldPosAtRowCol(path[0].rowValue, path[0].colValue);
             path.Remove(path[0]);
         }
 
@@ -253,6 +254,7 @@ public class TankFF3D_IrVolver : TankBehaviour
         if (path.Count > 0)
         {
             MoveTo(path[0].rowValue, path[0].colValue, new MoveFinish(Driver));
+            goingTo = map.GetWorldPosAtRowCol(path[0].rowValue, path[0].colValue); 
             path.Remove(path[0]);
         }
         else
@@ -293,4 +295,16 @@ public class TankFF3D_IrVolver : TankBehaviour
         return;
     }
 
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+
+        if (path.Count > 0 && goingTo != null)
+        {
+            Gizmos.DrawLine(transform.position, goingTo);
+            Gizmos.DrawLine(goingTo, map.GetWorldPosAtRowCol(path[0].rowValue, path[0].colValue));
+            for (int i = 1; i < (path.Count - 1); i++)
+                Gizmos.DrawLine(map.GetWorldPosAtRowCol(path[i - 1].rowValue, path[i - 1].colValue), map.GetWorldPosAtRowCol(path[i].rowValue, path[i].colValue));
+        }
+    }
 }

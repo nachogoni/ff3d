@@ -17,12 +17,14 @@ public class EnemyType
 
     }
 
-    public Vector3 newPos(Vector3 position)
+    public Vector3 newPos(Vector3 position, Vector3 fromPosition)
     {
         float actual = Time.realtimeSinceStartup;
 
-        Vector3 v = new Vector3(pos.x + ((position.x - pos.x) * 10f * (actual - lastUpdate) / (actual - lastUpdate)), pos.y, 
-                                pos.z + ((position.z - pos.z) / (actual - lastUpdate)) * 4 * (actual - lastUpdate));
+        float dist = (float)Math.Sqrt((double)(Math.Abs(fromPosition.z - pos.z) + Math.Abs(fromPosition.x - pos.x)));
+
+        Vector3 v = new Vector3(pos.x + ((position.x - pos.x) * 60f * (actual - lastUpdate) / (actual - lastUpdate)), pos.y, 
+                                pos.z + ((position.z - pos.z) * 60f * (actual - lastUpdate) / (actual - lastUpdate)));
 
         /*Debug.Log(Time.realtimeSinceStartup + " estuvo aca " + pos.x + 
             " supongo que va a estar aca " + v.x + " en " + (actual + 5f * (actual - lastUpdate)));
