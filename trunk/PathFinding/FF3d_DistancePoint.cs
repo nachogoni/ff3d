@@ -1,12 +1,12 @@
 using UnityEngine;
 using System.Collections;
 
-public class DistancePoint {
+public class FF3d_DistancePoint {
 
     Vector3 point;
     float distance;
 
-    public DistancePoint(Vector3 p, float d)
+    public FF3d_DistancePoint(Vector3 p, float d)
     {
         point = p;
         distance = d;
@@ -40,6 +40,6 @@ public class DistancePoint {
     public override bool Equals(object obj)
     {
         //hacer bien el chekeo de tipo
-        return (point.Equals(((DistancePoint)obj).getPoint())) && (distance.Equals(((DistancePoint)obj).getDistance()));
+        return (point.Equals(((FF3d_DistancePoint)obj).getPoint())) && (distance.Equals(((FF3d_DistancePoint)obj).getDistance()));
     }
 }

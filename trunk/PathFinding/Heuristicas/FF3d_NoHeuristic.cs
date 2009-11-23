@@ -2,10 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class NoHeuristic : Heuristics
+public class FF3d_NoHeuristic : FF3d_Heuristics
 {
 
-    public float getHeuristic(State state)
+    public float getHeuristic(FF3d_State state)
     {
         return 1.0f;
     }

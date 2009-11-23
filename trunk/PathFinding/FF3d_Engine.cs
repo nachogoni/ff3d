@@ -3,13 +3,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Engine
+public class FF3d_Engine
 {
-    SearchMethod sm;
+    FF3d_SearchMethod sm;
     String sol;
     ArrayList rules;
-    Rule rule = null;
-    Problem problem;
+    FF3d_Rule rule = null;
+    FF3d_Problem problem;
     int totalNodes = 0;
     int maxLevel = 0;
     int prunedCount = 0;
@@ -17,9 +17,9 @@ public class Engine
     float totalCost = 0.0f;
     int expandedNodes = 0;
     bool stop = false;
-    CallBack callback = null;
+    FF3d_CallBack callback = null;
 
-    public void setLastRule(Rule rule)
+    public void setLastRule(FF3d_Rule rule)
     {
         this.rule = rule;
     }
@@ -44,17 +44,17 @@ public class Engine
         return totalNodes;
     }
 
-    public CallBack getCallback()
+    public FF3d_CallBack getCallback()
     {
         return callback;
     }
 
-    public void setCallback(CallBack callback)
+    public void setCallback(FF3d_CallBack callback)
     {
         this.callback = callback;
     }
 
-    public Engine(Problem problem)
+    public FF3d_Engine(FF3d_Problem problem)
     {
         this.problem = problem;
         this.rules = new ArrayList();
@@ -71,14 +71,14 @@ public class Engine
         return totalCost;
     }
 
-    public bool run(SearchMethod sm)
+    public bool run(FF3d_SearchMethod sm)
     {
         bool solved = false;
 
-        Node currentNode = null;
-        Rule currentRule = null;
+        FF3d_Node currentNode = null;
+        FF3d_Rule currentRule = null;
 
-        State init = problem.getInitState();
+        FF3d_State init = problem.getInitState();
 
         if (init == null)
             return false;
@@ -104,14 +104,14 @@ public class Engine
         if (callback != null)
             callback.Init();
 
-        currentNode = new Node(init, this.problem.getHeuristic(init), this.rule);
+        currentNode = new FF3d_Node(init, this.problem.getHeuristic(init), this.rule);
         openNodes.Add(currentNode);
 
         while (openNodes.Count > 0 && !solved && !stop)
         {
 
             // Agarro el primer nodo de abiertos
-            currentNode = (Node)openNodes[0];
+            currentNode = (FF3d_Node)openNodes[0];
             // Si es gol, termino
             if (this.problem.isGoal(currentNode.getState()))
             {
@@ -127,7 +127,7 @@ public class Engine
             this.expandedNodes++;
 
             //Pido un iterador sobre las reglas y expando el currentNode
-            foreach (Rule r in rules)
+            foreach (FF3d_Rule r in rules)
             {
                 currentRule = r;
 
@@ -135,9 +135,9 @@ public class Engine
                 if (currentRule.isApplicable(currentNode.getState()))
                 {
                     //Creo un nuevo estado
-                    State state = currentRule.apply(currentNode.getState());
+                    FF3d_State state = currentRule.apply(currentNode.getState());
                     //Aplico la regla sobre el estado y armo un nuevo nodo con el nuevo estado
-                    Node aux = new Node(state, problem.getHeuristic(state),
+                    FF3d_Node aux = new FF3d_Node(state, problem.getHeuristic(state),
                             currentRule.getCost(currentNode.getRule()) == float.MaxValue ? float.MaxValue : currentNode.getGSum() + currentRule.getCost(currentNode.getRule()),
                             currentNode, currentRule);
 
@@ -185,7 +185,7 @@ public class Engine
         return solved;
     }
 
-    private bool searchParentState(Node node, State compareTo)
+    private bool searchParentState(FF3d_Node node, FF3d_State compareTo)
     {
         if (node == null)
             return false;
@@ -196,7 +196,7 @@ public class Engine
             return searchParentState(node.getParent(), compareTo);
     }
 
-    private void printSolution(Node leaf)
+    private void printSolution(FF3d_Node leaf)
     {
         if (leaf == null)
             return;

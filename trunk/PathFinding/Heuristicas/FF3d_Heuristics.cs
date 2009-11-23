@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public interface SearchMethod
+public interface FF3d_Heuristics
 {
-    void ApplyMethod(ArrayList openNodes, ArrayList closedNodes);
+    float getHeuristic(FF3d_State state);
     String toString();
 }

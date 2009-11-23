@@ -3,12 +3,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class PosRowCol
+public class FF3d_PosRowCol
 {
     public int rowValue;
     public int colValue;
 
-    public PosRowCol(int row, int col)
+    public FF3d_PosRowCol(int row, int col)
     {
         rowValue = row;
         colValue = col;

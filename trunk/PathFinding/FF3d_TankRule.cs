@@ -3,8 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class TankRule : Rule{
-	public MoveTypes moveValue;
+public class FF3d_TankRule : FF3d_Rule{
+	public FF3d_MoveTypes moveValue;
 	
     float [,] ruleCosts = new float [,] 
     
@@ -19,15 +19,15 @@ public class TankRule : Rule{
    /* UPRIGHT   */ {2.5f, 1.5f, 2.5f, 1.5f,  3.0f,     2.0f,      2.0f,   1.0f},
     };
 
-    public TankRule(MoveTypes move) {
+    public FF3d_TankRule(FF3d_MoveTypes move) {
         this.moveValue = move;
 	}
 	
-	public bool isApplicable(State state){
+	public bool isApplicable(FF3d_State state){
         return ((FF3d_TankState)state).isValidMove(this.moveValue);
 	}
 	
-	public State apply(State state)
+	public FF3d_State apply(FF3d_State state)
     {
 		FF3d_TankState newState;
 
@@ -39,12 +39,12 @@ public class TankRule : Rule{
 		newState = ((FF3d_TankState)state).duplicate();
         newState.move(this.moveValue);
 		
-		return (State)newState;
+		return (FF3d_State)newState;
 	}
 	
-	public float getCost(Rule lastRule) {
+	public float getCost(FF3d_Rule lastRule) {
 
-        return ruleCosts[(int)( (lastRule == null) ? moveValue : ((TankRule)lastRule).moveValue), (int)moveValue];
+        return ruleCosts[(int)( (lastRule == null) ? moveValue : ((FF3d_TankRule)lastRule).moveValue), (int)moveValue];
 
 	}
 	
@@ -52,34 +52,34 @@ public class TankRule : Rule{
         return moveValue.ToString();
 	}
 
-    public static int getRowIncrement(MoveTypes move)
+    public static int getRowIncrement(FF3d_MoveTypes move)
     {
         switch (move)
         {
-            case MoveTypes.DOWN:
-            case MoveTypes.DOWNLEFT:
-            case MoveTypes.DOWNRIGHT:
+            case FF3d_MoveTypes.DOWN:
+            case FF3d_MoveTypes.DOWNLEFT:
+            case FF3d_MoveTypes.DOWNRIGHT:
                 return 1;
-            case MoveTypes.UP:
-            case MoveTypes.UPLEFT:
-            case MoveTypes.UPRIGHT:
+            case FF3d_MoveTypes.UP:
+            case FF3d_MoveTypes.UPLEFT:
+            case FF3d_MoveTypes.UPRIGHT:
                 return -1;
         }
 
         return 0;
     }
 
-    public static int getColIncrement(MoveTypes move)
+    public static int getColIncrement(FF3d_MoveTypes move)
     {
         switch (move)
         {
-            case MoveTypes.LEFT:
-            case MoveTypes.DOWNLEFT:
-            case MoveTypes.UPLEFT:
+            case FF3d_MoveTypes.LEFT:
+            case FF3d_MoveTypes.DOWNLEFT:
+            case FF3d_MoveTypes.UPLEFT:
                 return -1;
-            case MoveTypes.RIGHT:
-            case MoveTypes.DOWNRIGHT:
-            case MoveTypes.UPRIGHT:
+            case FF3d_MoveTypes.RIGHT:
+            case FF3d_MoveTypes.DOWNRIGHT:
+            case FF3d_MoveTypes.UPRIGHT:
                 return 1;
         }
 
