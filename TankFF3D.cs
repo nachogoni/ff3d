@@ -17,10 +17,17 @@ public enum TankMode
     Nothing
 }
 
-public enum TankStates
+public enum TankTorretStates
 {
     Stay = 0,
     Doing,
+}
+
+public enum TorretMode
+{
+    Nothing = 0,
+    Rotating,
+    Shooting
 }
 
 
@@ -34,18 +41,22 @@ public class TankFF3D : TankBehaviour
     // Posicion del tanque
     int tankRow = 0, tankCol = 0;
 
-    // Torreta
-    float actualAngle = 0;
-
     // Flags & Enemies
     List<PosRowCol> flags = new List<PosRowCol>();
     List<PosRowCol> enemies = new List<PosRowCol>();
     Hashtable enemiesHash = new Hashtable();
 
     // Estado del tanque
-    TankStates ActualState = TankStates.Stay;
+    TankTorretStates ActualState = TankTorretStates.Stay;
     TankMode PreviousMode = TankMode.Nothing;
     public TankMode ActualMode = TankMode.Nothing;
+
+    // Estado de la torreta
+    TankTorretStates actualTorretState = TankTorretStates.Stay;
+    TorretMode actualTorretMode = TorretMode.Nothing;
+    float actualTorretAngle = 0f;
+    float deltaTorretAngle = 10f;
+    Vector3 torretShootAt = Vector3.zero;
 
     // Camino a seguir
     public List<PosRowCol> path = new List<PosRowCol>();
@@ -111,31 +122,31 @@ public class TankFF3D : TankBehaviour
         UpdateTankPosition();
 
         // Pongo el modo de nada
-        ActualMode = TankMode.Nothing;
-        Driver();
-        
+        ActualMode = TankMode.Attacking;
+        actualTorretMode = TorretMode.Rotating;
     }
 
     /*
      * Cambia el modo del tanque
      */
-    void changeMode(TankMode s)
+    private void changeMode(TankMode s)
     {
         // Guardo el modo anterior por si quiero seguir con ese dsp
         PreviousMode = ActualMode;
         ActualMode = s;
         // Pongo para que actualize el modo del tanque
-        ActualState = TankStates.Stay;
+        ActualState = TankTorretStates.Stay;
     }
 
-    int torretAngleChange = 0;
-
-    void searchBox()
+    /*
+     * Modo de busqueda de device
+     */
+    void SearchingBoxMode()
     {
-        int deviceX, deviceZ;
+        int row, col;
 
         // Calculo el recorrido
-        map.GetRowColAtWorldPos(devicePos, out deviceX, out deviceZ);
+        map.GetRowColAtWorldPos(devicePos, out row, out col);
         flags.Add(new PosRowCol(deviceX, deviceZ));
         UpdateFlagsIntoCells(flags);
         CalculatePath(tankRow, tankCol, flags, enemies);
@@ -143,32 +154,106 @@ public class TankFF3D : TankBehaviour
         StartMoving();
     }
 
+    /* 
+     * Modo defensivo
+     */
+    void BeeingAttackedMode()
+    {
+        //Activo el shield si esta disponible
+        if (shieldInfo.timeForBeAvailable == 0)
+            ActivateShield();
+    }
+
+    /*
+     * Modo ofensivo
+     */
+    void AttackingMode()
+    {
+        actualTorretMode = TorretMode.Shooting;
+        //Si tengo algo en la vision le disparo
+        if (visionInfo.Length > 0)
+        {
+            Fire(visionInfo[0].position, new FireFinish(tankFinish));
+        }
+        //Si no tengo busco en las pos de los enemigos y disparo
+    }
+
+    /*
+     * Modo Stand By
+     */
+    void NothingMode()
+    {
+        Driver();
+    }
+
+    public override void OnShootShieldReceived(Vector3 dir)
+    {
+        int row, col;
+
+        //Agrego al enemigo al mapa
+        map.GetRowColAtWorldPos(dir, out row, out col);
+        enemies.Add(new PosRowCol(row, col));
+
+        changeMode(TankMode.BeingAttacked);
+    }
+
+    public override void OnShootReceived(Vector3 dir)
+    {
+        int row, col;
+
+        //Agrego al enemigo al mapa
+        map.GetRowColAtWorldPos(dir, out row, out col);
+        enemies.Add(new PosRowCol(row, col));
+
+        changeMode(TankMode.BeingAttacked);
+    }
 
     public override void Think()
     {
         // Segun el estado que haga tal o cual cosa
-        if (ActualState == TankStates.Stay)
+        if (ActualState == TankTorretStates.Stay)
         {
             switch (ActualMode)
             {
                 case TankMode.Attacking:
-                    Debug.Log("Atacando");
+                    AttackingMode();
                     break;
                 case TankMode.BeingAttacked:
-                    Debug.Log("Siendo Atacando");
+                    BeeingAttackedMode();
                     break;
                 case TankMode.SearchingBox:
                     Debug.Log("Buscando item en " + devicePos);
                     // Calculo el recorrido
-                    searchBox();
+                    SearchingBoxMode();
                     break;
                 case TankMode.Nothing:
-                    Debug.Log("Nada");
+                    NothingMode();
                     break;
                 default:
+                    Debug.Log("Modo invalido de tank");
                     break;
             }
-            ActualState = TankStates.Doing;
+            ActualState = TankTorretStates.Doing;
+        }
+
+        if (actualTorretState == TankTorretStates.Stay)
+        {
+            switch(actualTorretMode)
+            {
+                case TorretMode.Rotating:
+                    torretRotateMode();
+                    break;
+                case TorretMode.Shooting:
+                    break;
+                case TorretMode.Nothing:
+                    actualTorretMode = TorretMode.Rotating;
+                    break;
+                default:
+                    Debug.Log("Modo invalido de torreta");
+                    break;
+            }
+
+            actualTorretState = TankTorretStates.Doing;
         }
 
         // Si no tengo la posicion del device busco
@@ -179,16 +264,28 @@ public class TankFF3D : TankBehaviour
             if ((devicePos = calculateDevicePosition()) != Vector3.zero)
             {
                 // Si la encuentro paso a buscar caja
-                changeMode(TankMode.SearchingBox);
+                //changeMode(TankMode.SearchingBox);
             }
 
         }
+    }
 
-        /*
-        if (visionInfo.Length > 0)
-            getEnemies();
-         */
+    void torretFinish()
+    {
+        actualTorretState = TankTorretStates.Stay;
+    }
 
+    void torretShootingMode()
+    {
+        Fire(torretShootAt, torretFinish);
+    }
+
+    void torretRotateMode()
+    {
+         actualTorretAngle = (actualTorretAngle + deltaTorretAngle) % 360;
+         RotateTorret(actualTorretAngle, new RotateFinish(torretFinish));
+        // Agrego los enemigos que haya
+         getEnemies();
     }
 
     Vector3 calculateDevicePosition()
@@ -248,15 +345,6 @@ public class TankFF3D : TankBehaviour
         return Vector3.zero;
     }
 
-    public void OnFireFinish()
-    {
-    }
-
-    public void OnMoveFinish()
-    {
-
-    }
-
     void UpdateTankPosition()
     {
         map.GetRowColAtWorldPos(transform.position, out tankRow, out tankCol);
@@ -300,31 +388,12 @@ public class TankFF3D : TankBehaviour
                 }
 
                 enemy = (EnemyType)(enemiesHash[visionInfo[i].name]);
-
-                //Debug.Log(enemy.pos.x + " " + enemy.pos.z);
-
-                Vector3 newpos = enemy.newPos(visionInfo[i].position);
-
-//                Fire(visionInfo[i].position, null);
-
-                Fire(newpos, null);
-
-
-
-                //Debug.Log("Fire to: " + newpos.x + " " + newpos.z + " estando en " + visionInfo[i].position.x + " " + visionInfo[i].position.z);
-
             }
-
         }
 
         return;
     }
 
-    public void otro()
-    {
-        Debug.Log("FIRED");
-        vari = true;
-    }
         
     // PathFinding
 
@@ -370,6 +439,11 @@ public class TankFF3D : TankBehaviour
         return;
     }
 
+    void tankFinish()
+    {
+        ActualState = TankTorretStates.Stay;
+    }
+
     void Driver()
     {
         int row = 0, col = 0;
@@ -379,7 +453,7 @@ public class TankFF3D : TankBehaviour
 
         if (path.Count > 0)
         {
-            MoveTo(path[0].rowValue, path[0].colValue, new MoveFinish(Driver));
+            MoveTo(path[0].rowValue, path[0].colValue, new MoveFinish(tankFinish));
             path.Remove(path[0]);
         }
         else
