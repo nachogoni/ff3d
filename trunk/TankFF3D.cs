@@ -44,11 +44,17 @@ public class TankFF3D : TankBehaviour
 
     // Estado del tanque
     TankStates ActualState = TankStates.Stay;
+    TankMode PreviousMode = TankMode.Nothing;
     public TankMode ActualMode = TankMode.Nothing;
 
     // Camino a seguir
     public List<PosRowCol> path = new List<PosRowCol>();
     Rule lastRule = null;
+
+    // Posicion del device
+    Vector3 devicePos = Vector3.zero;
+    ArrayList devicePoints = new ArrayList();
+    int radarRefresh = 0;
     
     public override TankProperties GetProperties()
     {
@@ -93,24 +99,50 @@ public class TankFF3D : TankBehaviour
         for (int flag = 0; flag < flagCount; flag++)
         {
             FlagManager.GetFlagRowCol(flag, out x, out y);
-            flags.Add(new PosRowCol(x, y));
+            //flags.Add(new PosRowCol(x, y));
         }
 
         // Actualizo el mapa
-        UpdateFlagsIntoCells(flags);
+        // no hay flags
+        //UpdateFlagsIntoCells(flags);
         UpdateEnemiesIntoCells(enemies);
 
         // Actualizo la posicion del tanque
         UpdateTankPosition();
 
-
-        // Pongo el modo de busqueda de banderas
-        ActualMode = TankMode.Attacking;
+        // Pongo el modo de nada
+        ActualMode = TankMode.Nothing;
+        Driver();
         
     }
 
+    /*
+     * Cambia el modo del tanque
+     */
+    void changeMode(TankMode s)
+    {
+        // Guardo el modo anterior por si quiero seguir con ese dsp
+        PreviousMode = ActualMode;
+        ActualMode = s;
+        // Pongo para que actualize el modo del tanque
+        ActualState = TankStates.Stay;
+    }
 
     int torretAngleChange = 0;
+
+    void searchBox()
+    {
+        int deviceX, deviceZ;
+
+        // Calculo el recorrido
+        map.GetRowColAtWorldPos(devicePos, out deviceX, out deviceZ);
+        flags.Add(new PosRowCol(deviceX, deviceZ));
+        UpdateFlagsIntoCells(flags);
+        CalculatePath(tankRow, tankCol, flags, enemies);
+        // Go for it
+        StartMoving();
+    }
+
 
     public override void Think()
     {
@@ -126,7 +158,9 @@ public class TankFF3D : TankBehaviour
                     Debug.Log("Siendo Atacando");
                     break;
                 case TankMode.SearchingBox:
-                    Debug.Log("Buscando item");
+                    Debug.Log("Buscando item en " + devicePos);
+                    // Calculo el recorrido
+                    searchBox();
                     break;
                 case TankMode.Nothing:
                     Debug.Log("Nada");
@@ -137,11 +171,81 @@ public class TankFF3D : TankBehaviour
             ActualState = TankStates.Doing;
         }
 
+        // Si no tengo la posicion del device busco
+        // el vector3.zero es una posicion invalida del tablero
+        if (devicePos == Vector3.zero)
+        {
+            //Calculo la posicion
+            if ((devicePos = calculateDevicePosition()) != Vector3.zero)
+            {
+                // Si la encuentro paso a buscar caja
+                changeMode(TankMode.SearchingBox);
+            }
+
+        }
+
         /*
         if (visionInfo.Length > 0)
             getEnemies();
          */
 
+    }
+
+    Vector3 calculateDevicePosition()
+    {
+        DistancePoint p;
+        Array points;
+
+        if (radarRefresh == radarInfo.refreshNumber)
+            return Vector3.zero;
+
+        //Actualizo el refresh number
+        radarRefresh = radarInfo.refreshNumber;
+
+        p = new DistancePoint(transform.position, radarInfo.distanceToObject);
+
+        // Si no tiene el punto que lo ponga
+        if (!devicePoints.Contains(p))
+        {
+            devicePoints.Add(p);
+        }
+
+        //Si tengo menos de 3 puntos no puedo triangular
+        if (devicePoints.Count > 2)
+        {
+            DistancePoint[] aux = new DistancePoint[3];
+            int i = 0;
+            float x, z;
+
+            foreach(DistancePoint d in devicePoints)
+            {
+                aux[i++] = d;
+            }
+
+            float ja, jb, da, db, dc;
+            Vector3 a, b, c;
+
+            a = aux[0].getPoint();
+            da = aux[0].getDistance();
+            
+            b = aux[1].getPoint();
+            db = aux[1].getDistance();
+
+            c = aux[2].getPoint();
+            dc = aux[2].getDistance();
+
+            jb = db * db - dc * dc - b.x * b.x + c.x * c.x - b.z * b.z + c.z * c.z;
+            ja = da * da - db * db - a.x * a.x + b.x * b.x - a.z * a.z + b.z * b.z;
+
+            x = (jb - (ja * (c.z - b.z) / (b.z - a.z)))/2;
+            x = x / ((c.x - b.x) - (b.x - a.x) * (c.z - b.z) / (b.z - a.z));
+
+            z = (ja - 2 * x * (b.x - a.x)) / (2 * (b.z - a.z));
+
+            return new Vector3(x,transform.position.y,z);
+        }
+
+        return Vector3.zero;
     }
 
     public void OnFireFinish()
@@ -174,29 +278,6 @@ public class TankFF3D : TankBehaviour
             cells[enemy.rowValue, enemy.colValue] = CellTypes.ENEMY;
         }
 
-    }
-
-    public void PrintMap()
-    {
-        string s = "";
-        for (int r = 0; r < rows; r++)
-        {
-            for (int c = 0; c < cols; c++)
-            {
-                s = s + " " + cells[r, c];
-            }
-            s = s + "\n";
-        }
-        Debug.Log(s);
-    }
-
-    public void PrintFlags()
-    {
-        string s = "";
-        foreach (PosRowCol flag in flags)
-        {
-            s = s + "Flag (" + flag.rowValue + ";" + flag.colValue + ")\n";
-        }
     }
 
     // EnemyFinding
@@ -245,12 +326,6 @@ public class TankFF3D : TankBehaviour
         vari = true;
     }
         
-
-
-    // BoxFinding
-    // TODO
-
-
     // PathFinding
 
     void CalculatePath(int row, int col, List<PosRowCol> flags, List<PosRowCol> enemies)
@@ -334,7 +409,6 @@ public class TankFF3D : TankBehaviour
                 {
                     flags.Add(new PosRowCol(row, col));
                     cells[row, col] = CellTypes.FLAG;
-                    PrintMap();
                 }
             }
 
