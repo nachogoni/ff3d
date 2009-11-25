@@ -9,7 +9,11 @@ public enum FF3d_TankMode
 {
     Stop = 0,
     Processing,
-    Moving
+    Moving,
+    Nothing,
+    SearchingBox,
+    Attacking,
+    BeingAttacked,
 }
 
 public class TankFF3D_BOT : TankBehaviour
@@ -38,10 +42,20 @@ public class TankFF3D_BOT : TankBehaviour
     // Posicion del device
     Vector3 devicePos = Vector3.zero;
     ArrayList devicePoints = new ArrayList();
+    int deviceRow, deviceCol;
     int radarRefresh = 0;
 
     // Estado del tanque
     FF3d_TankMode tankstatus;
+
+    // Estado de la torreta
+    float actualTorretAngle = 0f;
+    float deltaTorretAngle = 10f;
+    Vector3 torretShootAt = Vector3.zero;
+    bool torretEnemyAtSight = false;
+    int rotateTime = 0;
+    float deltaRotateTime = 1f;
+    float deltaTime = 0f;
 
     void OnDrawGizmos()
     {
@@ -111,6 +125,43 @@ public class TankFF3D_BOT : TankBehaviour
         return;
     }
 
+    // EnemyFinding
+
+    void getEnemies()
+    {
+        torretEnemyAtSight = false;
+
+        if (visionInfo.Length > 0)
+        {
+            torretEnemyAtSight = true;
+            torretShootAt = visionInfo[0].position;
+
+            for (int i = 0; i < visionInfo.Length; i++)
+            {
+                FF3d_EnemyType enemy;
+
+                if (!(enemiesHash.ContainsKey(visionInfo[i].name)))
+                {
+                    enemiesHash.Add(visionInfo[i].name, new FF3d_EnemyType(visionInfo[i].position));
+                }
+
+                enemy = (FF3d_EnemyType)(enemiesHash[visionInfo[i].name]);
+
+                torretShootAt = enemy.newPos(visionInfo[0].position, transform.position);
+            }
+        }
+
+        return;
+    }
+
+    void torretRotateMode()
+    {
+        actualTorretAngle = (actualTorretAngle + deltaTorretAngle) % 360;
+        RotateTorret(actualTorretAngle, null);
+        // Agrego los enemigos que haya
+        getEnemies();
+    }
+
     private void UpdateTankPosition()
     {
         map.GetRowColAtWorldPos(transform.position, out tankRow, out tankCol);
@@ -168,8 +219,16 @@ public class TankFF3D_BOT : TankBehaviour
                     break;
                 case FF3d_TankMode.Stop:
                     //Si no tengo la pos del device me muevo a algun lugar random
-                    generatePathTo(obtainRandowPoint());
-                    //Si la tengo voy al device
+                    if (devicePos == Vector3.zero)
+                    {
+                        generatePathTo(obtainRandowPoint());
+                    }
+                    else
+                    {
+                        //Si la tengo voy al device
+                        generatePathTo(deviceRow, deviceCol);
+                    }
+                    
                     tankstatus = FF3d_TankMode.Moving;
                     break;
                 default:
@@ -177,6 +236,55 @@ public class TankFF3D_BOT : TankBehaviour
                     break;
             }
         }
+
+        //Si no tengo la pos al device
+        if ((devicePos == Vector3.zero))
+        {
+            //Calculo la posicion
+            if ((devicePos = calculateDevicePosition()) != Vector3.zero)
+            {
+                map.GetRowColAtWorldPos(devicePos, out deviceRow, out deviceCol);
+                //Paro el movimiento
+                Debug.Log("Encontre! " + devicePos);
+                tankstatus = FF3d_TankMode.Stop;
+            }
+        }
+
+        deltaTime += Time.deltaTime;
+
+        if ((visionInfo.Length > 0) && torretEnemyAtSight)
+        {
+            getEnemies();
+            Fire(torretShootAt, null);
+        }
+        else if (deltaTime >= deltaRotateTime)
+        {
+            torretRotateMode();
+            deltaTime = 0;
+        }
+    }
+
+    public override void OnShootShieldReceived(Vector3 dir)
+    {
+        int row, col;
+
+        //Agrego al enemigo al mapa
+        map.GetRowColAtWorldPos(dir, out row, out col);
+        enemies.Add(new FF3d_PosRowCol(row, col));
+    }
+
+    public override void OnShootReceived(Vector3 dir)
+    {
+        int row, col;
+
+        //Agrego al enemigo al mapa
+        map.GetRowColAtWorldPos(dir, out row, out col);
+        //enemies.Add(new FF3d_PosRowCol(row, col));
+
+        if (shieldInfo.timeForBeAvailable == 0)
+            ActivateShield();
+
+        //changeMode(TankMode.BeingAttacked);
     }
 
     void moveTankToPosition()
