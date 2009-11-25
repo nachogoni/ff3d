@@ -10,10 +10,17 @@ public enum FF3d_TankMode
     Stop = 0,
     Processing,
     Moving,
+    Winner,
     Nothing,
     SearchingBox,
     Attacking,
     BeingAttacked,
+}
+
+public enum FF3d_TorretMode
+{
+    Stop = 0,
+    Processing,
 }
 
 public class TankFF3D_BOT : TankBehaviour
@@ -56,6 +63,8 @@ public class TankFF3D_BOT : TankBehaviour
     int rotateTime = 0;
     float deltaRotateTime = 1f;
     float deltaTime = 0f;
+    FF3d_TorretMode torretStatus;
+
 
     void OnDrawGizmos()
     {
@@ -79,8 +88,8 @@ public class TankFF3D_BOT : TankBehaviour
 
         tp.VisionDistance = 1;
         tp.VisionAngle = 1;
-        tp.FirePower = 2;
-        tp.FireRate = 4;
+        tp.FirePower = 3;
+        tp.FireRate = 3;
         tp.MovSpeed = 4;
         tp.Armor = 2;
         tp.RadDistance = 1;
@@ -154,10 +163,15 @@ public class TankFF3D_BOT : TankBehaviour
         return;
     }
 
+    void callbackTorretRotate()
+    {
+        torretStatus = FF3d_TorretMode.Stop;
+    }
+
     void torretRotateMode()
     {
         actualTorretAngle = (actualTorretAngle + deltaTorretAngle) % 360;
-        RotateTorret(actualTorretAngle, null);
+        RotateTorret(actualTorretAngle, new RotateFinish(callbackTorretRotate));
         // Agrego los enemigos que haya
         getEnemies();
     }
@@ -205,11 +219,21 @@ public class TankFF3D_BOT : TankBehaviour
 
         // Estado del tanque
         tankstatus = FF3d_TankMode.Stop;
+
+        //Estado de la torreta
+        torretStatus = FF3d_TorretMode.Stop;
     }
 
     public override void Think()
     {
-        if (tankstatus != FF3d_TankMode.Processing)
+        UpdateTankPosition();
+
+        if ((deviceCol == tankCol) && (deviceRow == tankRow))
+        {
+            tankstatus = FF3d_TankMode.Winner;
+        }
+
+        if ((tankstatus != FF3d_TankMode.Processing) && (tankstatus != FF3d_TankMode.Winner))
         {
             switch (tankstatus)
             {
@@ -223,13 +247,15 @@ public class TankFF3D_BOT : TankBehaviour
                     {
                         generatePathTo(obtainRandowPoint());
                     }
-                    else
+                    else 
                     {
                         //Si la tengo voy al device
                         generatePathTo(deviceRow, deviceCol);
                     }
                     
                     tankstatus = FF3d_TankMode.Moving;
+                    break;
+                case FF3d_TankMode.Winner:
                     break;
                 default:
                     tankstatus = FF3d_TankMode.Stop;
@@ -245,23 +271,36 @@ public class TankFF3D_BOT : TankBehaviour
             {
                 map.GetRowColAtWorldPos(devicePos, out deviceRow, out deviceCol);
                 //Paro el movimiento
-                Debug.Log("Encontre! " + devicePos);
-                tankstatus = FF3d_TankMode.Stop;
+                //tankstatus = FF3d_TankMode.Stop;
             }
         }
 
         deltaTime += Time.deltaTime;
+        //if ((visionInfo.Length > 0) && torretEnemyAtSight && !shooting)
 
-        if ((visionInfo.Length > 0) && torretEnemyAtSight)
+        if (torretStatus == FF3d_TorretMode.Stop)
         {
-            getEnemies();
-            Fire(torretShootAt, null);
+            if ((visionInfo.Length > 0) && (TimeForNextShoot <= 0))
+            {
+                getEnemies();
+                torretStatus = FF3d_TorretMode.Processing;
+                Fire(visionInfo[0].position, new FireFinish(callbackShooting));
+            }
+            else if (deltaTime >= deltaRotateTime)
+            {
+                deltaTime = 0;
+                torretStatus = FF3d_TorretMode.Processing;
+                actualTorretAngle = (actualTorretAngle + deltaTorretAngle) % 360;
+                RotateTorret(actualTorretAngle, new RotateFinish(callbackTorretRotate));
+                // Agrego los enemigos que haya
+                getEnemies();
+            }
         }
-        else if (deltaTime >= deltaRotateTime)
-        {
-            torretRotateMode();
-            deltaTime = 0;
-        }
+    }
+
+    void callbackShooting()
+    {
+        torretStatus = FF3d_TorretMode.Stop;
     }
 
     public override void OnShootShieldReceived(Vector3 dir)
